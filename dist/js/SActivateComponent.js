@@ -166,6 +166,8 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 					}
 				}
 			});
+			// restore state
+			this._restoreState();
 		}
 
 		/**
@@ -402,6 +404,9 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			// before activate callback
 			this.props.beforeActivate && this.props.beforeActivate(this);
 
+			// save the state
+			this._saveState(true);
+
 			// activate the element
 			this.classList.add(this.props.activeClass);
 
@@ -514,6 +519,9 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			// before unactivate
 			this.props.beforeUnactivate && this.props.onBeforeUnactivate(this);
 
+			// save the state
+			this._saveState(false);
+
 			// unactive the item itself
 			this.classList.remove(this.props.activeClass);
 
@@ -531,6 +539,51 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 
 			// callback
 			this.props.afterUnactivate && this.props.afterUnactivate(this);
+		}
+
+		/**
+   * Save the state
+   * @param 		{Boolean} 		activated 		The activate status
+   */
+
+	}, {
+		key: '_saveState',
+		value: function _saveState(activated) {
+			if (!this.props.id) return;
+			// check the save state method
+			switch (this.props.saveState) {
+				case 'sessionStorage':
+					sessionStorage.setItem(this._componentNameDash + '-' + this.props.id, activated);
+					break;
+				case 'localStorage':
+				case true:
+					localStorage.setItem(this._componentNameDash + '-' + this.props.id, activated);
+					break;
+			}
+		}
+
+		/**
+   * Restore the state
+   */
+
+	}, {
+		key: '_restoreState',
+		value: function _restoreState() {
+			if (!this.props.id) return;
+			// check the save state method
+			switch (this.props.saveState) {
+				case 'sessionStorage':
+					if (eval(sessionStorage.getItem(this._componentNameDash + '-' + this.props.id))) {
+						this.activate();
+					}
+					break;
+				case 'localStorage':
+				case true:
+					if (eval(localStorage.getItem(this._componentNameDash + '-' + this.props.id))) {
+						this.activate();
+					}
+					break;
+			}
 		}
 
 		/**
