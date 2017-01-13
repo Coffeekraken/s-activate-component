@@ -6,9 +6,29 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _SWebComponent2 = require('coffeekraken-sugar/js/core/SWebComponent');
+var _SAnchorWebComponent2 = require('coffeekraken-sugar/js/core/SAnchorWebComponent');
 
-var _SWebComponent3 = _interopRequireDefault(_SWebComponent2);
+var _SAnchorWebComponent3 = _interopRequireDefault(_SAnchorWebComponent2);
+
+var _uniqid = require('coffeekraken-sugar/js/utils/uniqid');
+
+var _uniqid2 = _interopRequireDefault(_uniqid);
+
+var _dispatchEvent = require('coffeekraken-sugar/js/dom/dispatchEvent');
+
+var _dispatchEvent2 = _interopRequireDefault(_dispatchEvent);
+
+var _sTemplateIntegrator = require('coffeekraken-sugar/js/core/sTemplateIntegrator');
+
+var _sTemplateIntegrator2 = _interopRequireDefault(_sTemplateIntegrator);
+
+var _whenAttribute = require('coffeekraken-sugar/js/dom/whenAttribute');
+
+var _whenAttribute2 = _interopRequireDefault(_whenAttribute);
+
+var _attributesObservable = require('coffeekraken-sugar/js/dom/attributesObservable');
+
+var _attributesObservable2 = _interopRequireDefault(_attributesObservable);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -18,16 +38,21 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var Component = function (_SWebComponent) {
-	_inherits(Component, _SWebComponent);
+if (!window.sugar) window.sugar = {};
+if (!window.sugar._sActivateStack) window.sugar._sActivateStack = {};
+if (!window.sugar._sActivateActiveStack) window.sugar._sActivateActiveStack = {};
+var _nestedActiveElements = [];
 
-	function Component() {
-		_classCallCheck(this, Component);
+var SActivateComponent = function (_SAnchorWebComponent) {
+	_inherits(SActivateComponent, _SAnchorWebComponent);
 
-		return _possibleConstructorReturn(this, (Component.__proto__ || Object.getPrototypeOf(Component)).apply(this, arguments));
+	function SActivateComponent() {
+		_classCallCheck(this, SActivateComponent);
+
+		return _possibleConstructorReturn(this, (SActivateComponent.__proto__ || Object.getPrototypeOf(SActivateComponent)).apply(this, arguments));
 	}
 
-	_createClass(Component, [{
+	_createClass(SActivateComponent, [{
 		key: 'componentWillMount',
 
 
@@ -36,7 +61,7 @@ var Component = function (_SWebComponent) {
    * @definition 		SWebComponent.componentWillMount
    */
 		value: function componentWillMount() {
-			_get(Component.prototype.__proto__ || Object.getPrototypeOf(Component.prototype), 'componentWillMount', this).call(this);
+			_get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), 'componentWillMount', this).call(this);
 			this._sActivateTargets = null;
 			this._sActivateTargetsDisabledTimeout = null;
 			this._sActivateNestedItems = [];
@@ -53,7 +78,7 @@ var Component = function (_SWebComponent) {
 		value: function componentMount() {
 			var _this2 = this;
 
-			_get(Component.prototype.__proto__ || Object.getPrototypeOf(Component.prototype), 'componentMount', this).call(this);
+			_get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), 'componentMount', this).call(this);
 
 			// stop listening for activate elements that have been activated
 			// BEFORE this is mounted
@@ -153,7 +178,7 @@ var Component = function (_SWebComponent) {
 		value: function componentUnmount() {
 			var _this3 = this;
 
-			_get(Component.prototype.__proto__ || Object.getPrototypeOf(Component.prototype), 'componentUnmount', this).call(this);
+			_get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), 'componentUnmount', this).call(this);
 			// listen for trigger (click, mouseover, etc...)
 			this.removeEventListener(this.props.trigger, this._onTriggerElement);
 			// remove all the classes
@@ -208,7 +233,7 @@ var Component = function (_SWebComponent) {
 	}, {
 		key: 'render',
 		value: function render() {
-			_get(Component.prototype.__proto__ || Object.getPrototypeOf(Component.prototype), 'render', this).call(this);
+			_get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), 'render', this).call(this);
 		}
 	}, {
 		key: '_componentWillMountBodyActivateListener',
@@ -278,7 +303,7 @@ var Component = function (_SWebComponent) {
 							// good element
 							if (_this5.props.preventScroll) {
 								window.history.pushState(null, null, '' + (document.location.pathname || '') + (document.location.search || '') + '#' + _this5.props.id);
-								__dispatchEvent(window, 'hashchange');
+								(0, _dispatchEvent2.default)(window, 'hashchange');
 							} else {
 								document.location.hash = '' + _this5.props.id;
 							}
@@ -384,7 +409,7 @@ var Component = function (_SWebComponent) {
 			[].forEach.call(this._sActivateTargets, function (target) {
 				_this8.activateTarget(target);
 				// dispatch an event to tell parents that this target is activated
-				__dispatchEvent(target, _this8._componentNameDash + ':activate', {
+				(0, _dispatchEvent2.default)(target, _this8._componentNameDash + ':activate', {
 					id: _this8.props.id,
 					group: _this8.props.group
 				});
@@ -467,7 +492,7 @@ var Component = function (_SWebComponent) {
 			if (this.props.history) {
 				if (this.props.preventScroll) {
 					window.history.pushState(null, null, '#' + this.props.id);
-					__dispatchEvent(window, 'hashchange');
+					(0, _dispatchEvent2.default)(window, 'hashchange');
 				} else {
 					document.location.hash = this.props.id;
 				}
@@ -497,7 +522,7 @@ var Component = function (_SWebComponent) {
 				[].forEach.call(this._sActivateTargets, function (target) {
 					_this10.unactivateTarget(target);
 					// dispatch an event to tell parents that this target is unactivated
-					__dispatchEvent(target, _this10._componentNameDash + ':unactivate', {
+					(0, _dispatchEvent2.default)(target, _this10._componentNameDash + ':unactivate', {
 						id: _this10.props.id,
 						group: _this10.props.group
 					});
@@ -554,7 +579,7 @@ var Component = function (_SWebComponent) {
 			if (!this.props.id && typeof targetsSelector === 'string') {
 				this.setProp('id', targetsSelector);
 			} else if (!this.props.id) {
-				this.setProp('id', __uniqid());
+				this.setProp('id', (0, _uniqid2.default)());
 			}
 
 			// if don't have any targetsSelector
@@ -562,7 +587,7 @@ var Component = function (_SWebComponent) {
 			// so check if already an id
 			// otherwise, set a new one
 			if (!targetsSelector) {
-				var id = this._componentNameDash + '-' + __uniqid();
+				var id = this._componentNameDash + '-' + (0, _uniqid2.default)();
 				if (!this.props.id) {
 					this.setProp('id', id);
 				}
@@ -580,7 +605,7 @@ var Component = function (_SWebComponent) {
 				[].forEach.call(this._sActivateTargets, function (t) {
 					// observe disable attribute on the target
 					if (!t._sActivateAttributesObservable) {
-						t._sActivateAttributesObservable = __attributesObservable(t, {
+						t._sActivateAttributesObservable = (0, _attributesObservable2.default)(t, {
 							attributeFilter: ['disabled']
 						}).subscribe(function (mutation) {
 							clearTimeout(_this11._sActivateTargetsDisabledTimeout);
@@ -651,7 +676,7 @@ var Component = function (_SWebComponent) {
 		key: 'mountDependencies',
 		get: function get() {
 			return [function () {
-				return __whenAttribute(this, 'href');
+				return (0, _whenAttribute2.default)(this, 'href');
 			}];
 		}
 
@@ -667,8 +692,8 @@ var Component = function (_SWebComponent) {
 		}
 	}]);
 
-	return Component;
-}(_SWebComponent3.default);
+	return SActivateComponent;
+}(_SAnchorWebComponent3.default);
 
 // sTemplateIntegrator.registerComponentIntegration(SActivateComponent, (component) => {
 // 	component.mutate(() => {
@@ -679,4 +704,4 @@ var Component = function (_SWebComponent) {
 // });
 
 
-exports.default = Component;
+exports.default = SActivateComponent;

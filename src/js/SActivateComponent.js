@@ -1,6 +1,16 @@
-import SWebComponent from 'coffeekraken-sugar/js/core/SWebComponent'
+import SAnchorWebComponent from 'coffeekraken-sugar/js/core/SAnchorWebComponent'
+import __uniqid from 'coffeekraken-sugar/js/utils/uniqid'
+import __dispatchEvent from 'coffeekraken-sugar/js/dom/dispatchEvent'
+import sTemplateIntegrator from 'coffeekraken-sugar/js/core/sTemplateIntegrator'
+import __whenAttribute from 'coffeekraken-sugar/js/dom/whenAttribute'
+import __attributesObservable from 'coffeekraken-sugar/js/dom/attributesObservable'
 
-export default class Component extends SWebComponent {
+if ( ! window.sugar) window.sugar = {};
+if ( ! window.sugar._sActivateStack) window.sugar._sActivateStack = {};
+if ( ! window.sugar._sActivateActiveStack) window.sugar._sActivateActiveStack = {};
+const _nestedActiveElements = [];
+
+export default class SActivateComponent extends SAnchorWebComponent {
 
 	/**
 	 * Default props
