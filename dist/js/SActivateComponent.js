@@ -427,7 +427,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 	}, {
 		key: 'activateTarget',
 		value: function activateTarget(target) {
-			if (target.activate && typeof target.activate === 'function') target.activate();else {
+			if (target !== this && target.activate && typeof target.activate === 'function') target.activate();else {
 				// remove the active class on target
 				target.classList.add(this.props.activeTargetClass || this.props.activeClass);
 			}
@@ -441,7 +441,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 	}, {
 		key: 'unactivateTarget',
 		value: function unactivateTarget(target) {
-			if (target.unactivate && typeof target.unactivate === 'function') target.unactivate();else {
+			if (target !== this && target.unactivate && typeof target.unactivate === 'function') target.unactivate();else {
 				// remove the active class on target
 				target.classList.remove(this.props.activeTargetClass || this.props.activeClass);
 			}

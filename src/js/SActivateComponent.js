@@ -391,7 +391,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
 	 * @param 		{HTMLElement} 		target 			The target to activatee
 	 */
 	activateTarget(target) {
-		if (target.activate && typeof(target.activate) === 'function') target.activate();
+		if (target !== this && target.activate && typeof(target.activate) === 'function') target.activate();
 		else {
 			// remove the active class on target
 			target.classList.add(this.props.activeTargetClass || this.props.activeClass);
@@ -403,7 +403,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
 	 * @param 		{HTMLElement} 		target 			The target to activatee
 	 */
 	unactivateTarget(target) {
-		if (target.unactivate && typeof(target.unactivate) === 'function') target.unactivate();
+		if (target !== this && target.unactivate && typeof(target.unactivate) === 'function') target.unactivate();
 		else {
 			// remove the active class on target
 			target.classList.remove(this.props.activeTargetClass || this.props.activeClass);
