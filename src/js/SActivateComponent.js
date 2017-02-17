@@ -10,39 +10,193 @@ if ( ! window.sugar._sActivateStack) window.sugar._sActivateStack = {};
 if ( ! window.sugar._sActivateActiveStack) window.sugar._sActivateActiveStack = {};
 const _nestedActiveElements = [];
 
+/**
+ * @name 	SActivateComponent
+ * @extends 	SWebComponent
+ * Create links that apply an active class on his target instead of the default link behavior. This can be used to create tabs, accordion, or whatever you want that require to have a class added dynamically by clicking.
+ * Features:
+ * - Nested support. When a nested target is activated, all the parent ones will be too.
+ * - Grouping (tabs, etc...)
+ * - History
+ * - Toggle
+ * - Saving state
+ * - And more...
+ *
+ * @example 	html
+ * <style>
+ * 	#my-target { display: none; }
+ * 	#my-target.active { display: block; }
+ * </style>
+ * <a href="#my-target" is="s-activate">Click me to activate the target</a>
+ * <div id="my-target">
+ * 	I will have an "active" class when the link has been clicked
+ * </div>
+ *
+ * @author 		Olivier Bossel <olivier.bossel@gmail.com>
+ */
+
+ /**
+  * @name 	SActivateComponent
+  * Create links that apply an active class on his target instead of the default link behavior. This can be used to create tabs, accordion, or whatever you want that require to have a class added dynamically by clicking.
+  * @styleguide 	Objects / Activate Link
+  *
+  * @example 	html
+  * <style>
+  * 	#my-target { display: none; }
+  * 	#my-target.active { display: block; }
+  * </style>
+  * <a href="#my-target" is="s-activate" toggle="true">Click me to activate the target</a>
+  * <div id="my-target">
+  * 	I will have an "active" class when the link has been clicked
+  * </div>
+  *
+  * @author 		Olivier Bossel <olivier.bossel@gmail.com>
+  */
+
 export default class SActivateComponent extends SAnchorWebComponent {
 
 	/**
 	 * Default props
 	 * @definition 		SWebComponent.defaultProps
+	 * @protected
 	 */
 	static get defaultProps() {
 		return {
+			/**
+			 * Specify the target to activate. A target can be an HTMLElement with an id or an s-activate-target="{id}" attribute.
+			 * @prop
+			 * @type	{String}
+			 */
 			href : null,
-			activate : null,
+
 			id : null,
+
+			/**
+			 * Specify the group in which this activate element lives. This is useful to create things like tabs, accordion, etc...
+			 * Basicaly, when an item of the same group is activated, the others will be unactivate automatically.
+			 * @prop
+			 * @type 	{String}
+			 */
 			group : null,
+
+			/**
+			 * Specify the class that will be applied on the targets when this component is activated
+			 * @prop
+			 * @type	{String}
+			 */
 			activeTargetClass : null,
+
+			/**
+			 * Specify the class that will be applied on this component and on the targets when this component is activated
+			 * @prop
+			 * @type 	{String}
+			 */
 			activeClass : 'active',
+
+			/**
+			 * Set if want the component set his id in the URL
+			 * @prop
+			 * @type 	{Boolean}
+			 */
 			history : true,
+
+			/**
+			 * Set if need to check the URL at start to activate the component if needed
+			 * @prop
+			 * @type	{Boolean}
+			 */
 			anchor : true,
+
+			/**
+			 * Set if want that the component unactivate itself when click on it when activated
+			 * @prop
+			 * @type 		{Boolean}
+			 */
 			toggle : false,
+
+			/**
+			 * Specify which event will activate the component
+			 * @prop
+			 * @type  	{String}
+			 */
 			trigger : 'click',
+
+			/**
+			 * Specify if the activate component is disabled, in which case it will not activate any targets when clicked
+			 * @prop
+			 * @type 	{Boolean}
+			 */
 			disabled : false,
+
+			/**
+			 * Specify if and how the state of the component will be saved. It can be true/localStorage, or sessionStorage
+			 * @prop
+			 * @type 	{String|Boolean}
+			 */
 			saveState : false,
+
+			/**
+			 * Specify the event that will unactivate the component. By default, it's the same as the trigger property
+			 * @prop
+			 * @type 	{String}
+			 */
 			unactivateTrigger : null,
+
+			/**
+			 * Specify a timeout before actually activating the component
+			 * @prop
+			 * @type 	{Number}
+			 */
 			activateTimeout : 0,
+
+			/**
+			 * Specify a timeout before actually unactivate the component
+			 * @prop
+			 * @type	{Number}
+			 */
 			unactivateTimeout : 200,
+
+			/**
+			 * Specify if need to prevent the scroll when clicking on the component. This is useful when the "history" property is set to true and need to prevent the scroll to happened.
+			 * The url will be set using the window.history.pushState instead of the location.hash.
+			 * @prop
+			 * @type 	{Boolean}
+			 */
 			preventScroll : false,
+
+			/**
+			 * Callback called just before the component is bein activated
+			 * @prop
+			 * @type	{Function}
+			 */
 			beforeActivate : null,
+
+			/**
+			 * Callback called just after the component is bein activated
+			 * @prop
+			 * @type	{Function}
+			 */
 			afterActivate : null,
+
+			/**
+			 * Callback called just before the component is bein unactivated
+			 * @prop
+			 * @type	{Function}
+			 */
 			beforeUnactivate : null,
+
+			/**
+			 * Callback called just after the component is bein unactivated
+			 * @prop
+			 * @type	{Function}
+			 */
 			afterUnactivate : null
 		};
 	}
 
 	/**
 	 * Mount dependencies
+	 * @protected
 	 */
 	static get mountDependencies() {
 		return [function() {
@@ -53,6 +207,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
 	/**
 	 * Physical props
 	 * @definition 		SWebComponent.physicalProps
+	 * @protected
 	 */
 	static get physicalProps() {
 		return ['group','disabled'];
@@ -60,6 +215,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
 
 	/**
 	 * Css
+	 * @protected
 	 */
 	static css(componentName, componentNameDash) {
 		return `
@@ -72,6 +228,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
 	/**
 	 * Component will mount
 	 * @definition 		SWebComponent.componentWillMount
+	 * @protected
 	 */
 	componentWillMount() {
 		super.componentWillMount();
@@ -84,6 +241,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
 	/**
 	 * Mount component
 	 * @definition 		SWebComponent.componentMount
+	 * @protected
 	 */
 	componentMount() {
 		super.componentMount();
@@ -185,6 +343,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
 	/**
 	 * Component unmount
 	 * @definition 		SWebComponent.componentUnmount
+	 * @protected
 	 */
 	componentUnmount() {
 		super.componentUnmount();
@@ -215,6 +374,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
 	/**
 	 * Component will receive prop
 	 * @definition 		SWebComponent.componentWillReceiveProp
+	 * @protected
 	 */
 	componentWillReceiveProp(name, newVal, oldVal) {
 		switch(name) {
@@ -232,6 +392,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
 	 * Render the component
 	 * Here goes the code that reflect the this.props state on the actual html element
 	 * @definition 		SWebComponent.render
+	 * @protected
 	 */
 	render() {
 		super.render();
@@ -546,11 +707,12 @@ export default class SActivateComponent extends SAnchorWebComponent {
 
 	/**
 	 * Update targets, etc...
+	 * @param 		{HTMLElement} 		[scope=document.body] 			The scope to update
 	 */
 	update(scope = document.body) {
 
 		// target
-		let targetsSelector = this.props.activate || this.props.href;
+		let targetsSelector = this.props.target || this.props.href;
 
 		// remove # at start of targetsSelector
 		if (targetsSelector && targetsSelector.substr(0,1) === '#') {
