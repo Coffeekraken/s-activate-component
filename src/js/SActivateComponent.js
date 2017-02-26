@@ -217,7 +217,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
 	 * Css
 	 * @protected
 	 */
-	static css(componentName, componentNameDash) {
+	static defaultCss(componentName, componentNameDash) {
 		return `
 			${componentNameDash} {
 				display : block;
