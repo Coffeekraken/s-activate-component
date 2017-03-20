@@ -18,10 +18,6 @@ var _dispatchEvent = require('coffeekraken-sugar/js/dom/dispatchEvent');
 
 var _dispatchEvent2 = _interopRequireDefault(_dispatchEvent);
 
-var _sTemplateIntegrator = require('coffeekraken-sugar/js/core/sTemplateIntegrator');
-
-var _sTemplateIntegrator2 = _interopRequireDefault(_sTemplateIntegrator);
-
 var _whenAttribute = require('coffeekraken-sugar/js/dom/whenAttribute');
 
 var _whenAttribute2 = _interopRequireDefault(_whenAttribute);
@@ -909,14 +905,5 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 
 	return SActivateComponent;
 }(_SAnchorWebComponent3.default);
-
-// sTemplateIntegrator.registerComponentIntegration(SActivateComponent, (component) => {
-// 	component.mutate(() => {
-// 		sTemplateIntegrator.ignore(component, {
-// 			group : true
-// 		});
-// 	});
-// });
-
 
 exports.default = SActivateComponent;

@@ -1,7 +1,6 @@
 import SAnchorWebComponent from 'coffeekraken-sugar/js/core/SAnchorWebComponent'
 import __uniqid from 'coffeekraken-sugar/js/utils/uniqid'
 import __dispatchEvent from 'coffeekraken-sugar/js/dom/dispatchEvent'
-import sTemplateIntegrator from 'coffeekraken-sugar/js/core/sTemplateIntegrator'
 import __whenAttribute from 'coffeekraken-sugar/js/dom/whenAttribute'
 import __attributesObservable from 'coffeekraken-sugar/js/dom/attributesObservable'
 
@@ -774,11 +773,3 @@ export default class SActivateComponent extends SAnchorWebComponent {
 		this._targetsSelector = targetsSelector;
 	}
 }
-
-// sTemplateIntegrator.registerComponentIntegration(SActivateComponent, (component) => {
-// 	component.mutate(() => {
-// 		sTemplateIntegrator.ignore(component, {
-// 			group : true
-// 		});
-// 	});
-// });
