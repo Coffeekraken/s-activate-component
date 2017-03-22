@@ -27,27 +27,6 @@ Author : Olivier Bossel <olivier.bossel@gmail.com>
 
 
 
-## Examples
-
-Here's some usage examples.
-
-### SActivateComponent
-
-
-
-#### Example
-```html
-	<style>
-	#my-target { display: none; }
-	#my-target.active { display: block; }
-</style>
-<a href="#my-target" is="s-activate" toggle="true">Click me to activate the target</a>
-<div id="my-target">
-	I will have an "active" class when the link has been clicked
-</div>
-```
-Author : Olivier Bossel <olivier.bossel@gmail.com>
-
 
 ## Attributes
 
@@ -99,7 +78,7 @@ Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Refere
 Default : **true**
 
 
-### anchor
+### hash
 
 Set if need to check the URL at start to activate the component if needed
 

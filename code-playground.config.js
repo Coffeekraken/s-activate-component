@@ -1,6 +1,6 @@
 module.exports = {
 	// server port
-	port : 3003,
+	port : 3000,
 
 	// title
 	title : 's-activate-component',
@@ -12,7 +12,7 @@ module.exports = {
 	compileServer : {
 
 		// compile server port
-		port : 4003
+		port : 4000
 
 	},
 

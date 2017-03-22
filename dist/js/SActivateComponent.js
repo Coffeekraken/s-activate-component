@@ -51,30 +51,13 @@ var _nestedActiveElements = [];
  * - Saving state
  * - And more...
  *
+ * @styleguide 	Objects / Activate Link
  * @example 	html
  * <style>
  * 	#my-target { display: none; }
  * 	#my-target.active { display: block; }
  * </style>
  * <a href="#my-target" is="s-activate">Click me to activate the target</a>
- * <div id="my-target">
- * 	I will have an "active" class when the link has been clicked
- * </div>
- *
- * @author 		Olivier Bossel <olivier.bossel@gmail.com>
- */
-
-/**
- * @name 	SActivateComponent
- * Create links that apply an active class on his target instead of the default link behavior. This can be used to create tabs, accordion, or whatever you want that require to have a class added dynamically by clicking.
- * @styleguide 	Objects / Activate Link
- *
- * @example 	html
- * <style>
- * 	#my-target { display: none; }
- * 	#my-target.active { display: block; }
- * </style>
- * <a href="#my-target" is="s-activate" toggle="true">Click me to activate the target</a>
  * <div id="my-target">
  * 	I will have an "active" class when the link has been clicked
  * </div>
@@ -197,8 +180,8 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 				});
 			}
 			setTimeout(function () {
-				// check with anchor if need to activate the element
-				if (_this2.props.anchor) {
+				// check with hash if need to activate the element
+				if (_this2.props.hash) {
 					var hash = document.location.hash;
 					if (hash) {
 						if (hash.substr(1) === _this2.props.id) {
@@ -260,11 +243,23 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 
 			switch (name) {
 				case 'href':
-				case 'activate':
 					// wait next frame to be sure that we have the last html
 					this.mutate(function () {
 						_this4.update();
 					});
+					break;
+				case 'class':
+					newVal = newVal || '';
+					oldVal = oldVal || '';
+					var newClasses = newVal.split(' ');
+					var oldClasses = oldVal.split(' ');
+					if (newClasses.indexOf(this.props.activeClass) !== -1 && oldClasses.indexOf(this.props.activeClass) === -1) {
+						// activate the element
+						this.activate();
+					} else if (newClasses.indexOf(this.props.activeClass) === -1 && oldClasses.indexOf(this.props.activeClass) !== -1) {
+						// unactivate the element
+						this.unactivate();
+					}
 					break;
 			}
 		}
@@ -339,7 +334,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 					}
 				} else {
 					if (_this5.props.history) {
-						// simply activate again if the same id that anchor
+						// simply activate again if the same id that hash
 						// this can happened when an element has history to false
 						if (document.location.hash && document.location.hash === _this5.props.id) {
 							_this5._activate();
@@ -753,6 +748,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 				href: null,
 
 				id: null,
+				class: null,
 
 				/**
      * Specify the group in which this activate element lives. This is useful to create things like tabs, accordion, etc...
@@ -788,7 +784,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      * @prop
      * @type	{Boolean}
      */
-				anchor: true,
+				hash: true,
 
 				/**
      * Set if want that the component unactivate itself when click on it when activated

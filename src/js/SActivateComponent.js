@@ -21,6 +21,7 @@ const _nestedActiveElements = [];
  * - Saving state
  * - And more...
  *
+ * @styleguide 	Objects / Activate Link
  * @example 	html
  * <style>
  * 	#my-target { display: none; }
@@ -33,24 +34,6 @@ const _nestedActiveElements = [];
  *
  * @author 		Olivier Bossel <olivier.bossel@gmail.com>
  */
-
- /**
-  * @name 	SActivateComponent
-  * Create links that apply an active class on his target instead of the default link behavior. This can be used to create tabs, accordion, or whatever you want that require to have a class added dynamically by clicking.
-  * @styleguide 	Objects / Activate Link
-  *
-  * @example 	html
-  * <style>
-  * 	#my-target { display: none; }
-  * 	#my-target.active { display: block; }
-  * </style>
-  * <a href="#my-target" is="s-activate" toggle="true">Click me to activate the target</a>
-  * <div id="my-target">
-  * 	I will have an "active" class when the link has been clicked
-  * </div>
-  *
-  * @author 		Olivier Bossel <olivier.bossel@gmail.com>
-  */
 
 export default class SActivateComponent extends SAnchorWebComponent {
 
@@ -69,6 +52,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
 			href : null,
 
 			id : null,
+			class : null,
 
 			/**
 			 * Specify the group in which this activate element lives. This is useful to create things like tabs, accordion, etc...
@@ -104,7 +88,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
 			 * @prop
 			 * @type	{Boolean}
 			 */
-			anchor : true,
+			hash : true,
 
 			/**
 			 * Set if want that the component unactivate itself when click on it when activated
@@ -325,8 +309,8 @@ export default class SActivateComponent extends SAnchorWebComponent {
 			});
 		}
 		setTimeout(() => {
-			// check with anchor if need to activate the element
-			if (this.props.anchor) {
+			// check with hash if need to activate the element
+			if (this.props.hash) {
 				let hash = document.location.hash;
 				if (hash) {
 					if (hash.substr(1) === this.props.id) {
@@ -378,11 +362,23 @@ export default class SActivateComponent extends SAnchorWebComponent {
 	componentWillReceiveProp(name, newVal, oldVal) {
 		switch(name) {
 			case 'href':
-			case 'activate':
 				// wait next frame to be sure that we have the last html
 				this.mutate(() => {
 					this.update();
 				});
+			break;
+			case 'class':
+				newVal = newVal || '';
+				oldVal = oldVal || '';
+				const newClasses = newVal.split(' ');
+				const oldClasses = oldVal.split(' ');
+				if (newClasses.indexOf(this.props.activeClass) !== -1 && oldClasses.indexOf(this.props.activeClass) === -1) {
+					// activate the element
+					this.activate();
+				} else if (newClasses.indexOf(this.props.activeClass) === -1 && oldClasses.indexOf(this.props.activeClass) !== -1) {
+					// unactivate the element
+					this.unactivate();
+				}
 			break;
 		}
 	}
@@ -449,7 +445,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
 				}
 			} else {
 				if (this.props.history) {
-					// simply activate again if the same id that anchor
+					// simply activate again if the same id that hash
 					// this can happened when an element has history to false
 					if (document.location.hash && document.location.hash === this.props.id) {
 						this._activate();
