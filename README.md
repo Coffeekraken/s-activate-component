@@ -82,11 +82,11 @@ Then simply use it inside your html like so:
 <a id="readme-browsers-support"></a>
 ## Browsers support
 
-* Chrome *(latest 2)*
-* Firefox *(latest 2)*
-* Internet Explorer 10+
-* Opera *(latest 2)*
-* Safari *(latest 2)*
+| [<img src="https://raw.githubusercontent.com/godban/browsers-support-badges/master/src/images/edge.png" alt="IE / Edge" width="16px" height="16px" />](http://godban.github.io/browsers-support-badges/)</br>IE / Edge | [<img src="https://raw.githubusercontent.com/godban/browsers-support-badges/master/src/images/firefox.png" alt="Firefox" width="16px" height="16px" />](http://godban.github.io/browsers-support-badges/)</br>Firefox | [<img src="https://raw.githubusercontent.com/godban/browsers-support-badges/master/src/images/chrome.png" alt="Chrome" width="16px" height="16px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome | [<img src="https://raw.githubusercontent.com/godban/browsers-support-badges/master/src/images/safari.png" alt="Safari" width="16px" height="16px" />](http://godban.github.io/browsers-support-badges/)</br>Safari |
+| --------- | --------- | --------- | --------- |
+| IE11+ | last 2 versions| last 2 versions| last 2 versions
+
+> As browsers are automatically updated, we will keep as reference the last two versions of each but this component can work on older ones as well.
 
 > The webcomponent API (custom elements, shadowDOM, etc...) is not supported in some older browsers like IE10, etc... In order to make them work, you will need to integrate the [corresponding polyfill](https://www.webcomponents.org/polyfills).
 
