@@ -1,4 +1,31 @@
-# Coffeekraken s-activate-component <small>{version}</small> [![Build Status](https://travis-ci.org/Coffeekraken/s-activate-component.svg?branch=release/{version})](https://travis-ci.org/Coffeekraken/s-activate-component)
+# Coffeekraken s-activate-component <img src=".resources/coffeekraken-logo.jpg" height="25px" />
+
+<p>
+	<a href="https://travis-ci.org/Coffeekraken/s-activate-component">
+		<img src="https://img.shields.io/travis/Coffeekraken/s-activate-component.svg?style=flat-square" />
+	</a>
+	<a href="https://www.npmjs.com/package/coffeekraken-s-activate-component">
+		<img src="https://img.shields.io/npm/v/coffeekraken-s-activate-component.svg?style=flat-square" />
+	</a>
+	<a href="https://github.com/coffeekraken/s-activate-component/blob/master/LICENSE.txt">
+		<img src="https://img.shields.io/npm/l/coffeekraken-s-activate-component.svg?style=flat-square" />
+	</a>
+	<!-- <a href="https://github.com/coffeekraken/s-activate-component">
+		<img src="https://img.shields.io/npm/dt/coffeekraken-s-activate-component.svg?style=flat-square" />
+	</a>
+	<a href="https://github.com/coffeekraken/s-activate-component">
+		<img src="https://img.shields.io/github/forks/coffeekraken/s-activate-component.svg?style=social&label=Fork&style=flat-square" />
+	</a>
+	<a href="https://github.com/coffeekraken/s-activate-component">
+		<img src="https://img.shields.io/github/stars/coffeekraken/s-activate-component.svg?style=social&label=Star&style=flat-square" />
+	</a> -->
+	<a href="https://twitter.com/coffeekrakenio">
+		<img src="https://img.shields.io/twitter/url/http/coffeekrakenio.svg?style=social&style=flat-square" />
+	</a>
+	<a href="http://coffeekraken.io">
+		<img src="https://img.shields.io/twitter/url/http/shields.io.svg?style=flat-square&label=coffeekraken.io&colorB=f2bc2b&style=flat-square" />
+	</a>
+</p>
 
 Simple ```<a>``` webcomponent extension that give the ability to activate a target element by adding/removing a class on it. Useful to create some toggle, tabs, etc... behaviors.
 

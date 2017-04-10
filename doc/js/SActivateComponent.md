@@ -193,8 +193,6 @@ Callback called just after the component is bein unactivated
 
 Type : **{ [Function](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Function) }**
 
-Default : **null**
-
 
 
 
@@ -244,5 +242,3 @@ Update targets, etc...
 Name  |  Type  |  Description  |  Status  |  Default
 ------------  |  ------------  |  ------------  |  ------------  |  ------------
 scope  |  **{ [HTMLElement](https://developer.mozilla.org/fr/docs/Web/API/HTMLElement) }**  |  The scope to update  |  optional  |  document.body
-
-Default : **document.body) {**
