@@ -249,8 +249,8 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 					});
 					break;
 				case 'class':
-					newVal = newVal || '';
-					oldVal = oldVal || '';
+					newVal = typeof newVal === 'string' ? newVal : '';
+					oldVal = typeof oldVal === 'string' ? oldVal : '';
 					var newClasses = newVal.split(' ');
 					var oldClasses = oldVal.split(' ');
 					if (newClasses.indexOf(this.props.activeClass) !== -1 && oldClasses.indexOf(this.props.activeClass) === -1) {

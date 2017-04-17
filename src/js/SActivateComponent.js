@@ -375,8 +375,8 @@ export default class SActivateComponent extends SAnchorWebComponent {
 				});
 			break;
 			case 'class':
-				newVal = newVal || '';
-				oldVal = oldVal || '';
+				newVal = (typeof newVal === 'string') ? newVal : '';
+				oldVal = (typeof oldVal === 'string') ? oldVal : '';
 				const newClasses = newVal.split(' ');
 				const oldClasses = oldVal.split(' ');
 				if (newClasses.indexOf(this.props.activeClass) !== -1 && oldClasses.indexOf(this.props.activeClass) === -1) {
