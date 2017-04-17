@@ -751,6 +751,13 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 				class: null,
 
 				/**
+     * Specify the target of the activate link if want to override the href one
+     * @prop
+     * @type 	{String}
+     */
+				target: null,
+
+				/**
      * Specify the group in which this activate element lives. This is useful to create things like tabs, accordion, etc...
      * Basicaly, when an item of the same group is activated, the others will be unactivate automatically.
      * @prop
