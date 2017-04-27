@@ -440,6 +440,9 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 		value: function _activate() {
 			var _this8 = this;
 
+			// prevent from activate multiple times
+			if (this.isActive()) return;
+
 			// before activate callback
 			this.props.beforeActivate && this.props.beforeActivate(this);
 
@@ -555,6 +558,9 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 		value: function unactivate() {
 			var _this10 = this;
 
+			// prevent from unactivate multiple times
+			if (!this.isActive()) return;
+
 			// before unactivate
 			this.props.beforeUnactivate && this.props.onBeforeUnactivate(this);
 
@@ -659,7 +665,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 
 
 			// target
-			var targetsSelector = this.props.target || this.props.href;
+			var targetsSelector = this.props.targets || this.props.href;
 
 			// remove # at start of targetsSelector
 			if (targetsSelector && targetsSelector.substr(0, 1) === '#') {
@@ -751,11 +757,11 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 				class: null,
 
 				/**
-     * Specify the target of the activate link if want to override the href one
+     * Specify the targets of the activate link if want to override the href one
      * @prop
      * @type 	{String}
      */
-				target: null,
+				targets: null,
 
 				/**
      * Specify the group in which this activate element lives. This is useful to create things like tabs, accordion, etc...

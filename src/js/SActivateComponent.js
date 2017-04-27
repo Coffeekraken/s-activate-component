@@ -55,11 +55,11 @@ export default class SActivateComponent extends SAnchorWebComponent {
 			class : null,
 
 			/**
-			 * Specify the target of the activate link if want to override the href one
+			 * Specify the targets of the activate link if want to override the href one
 			 * @prop
 			 * @type 	{String}
 			 */
-			target : null,
+			targets : null,
 
 			/**
 			 * Specify the group in which this activate element lives. This is useful to create things like tabs, accordion, etc...
@@ -531,6 +531,10 @@ export default class SActivateComponent extends SAnchorWebComponent {
 	 * Activate the element
 	 */
 	_activate() {
+
+		// prevent from activate multiple times
+		if (this.isActive()) return;
+
 		// before activate callback
 		this.props.beforeActivate && this.props.beforeActivate(this);
 
@@ -626,6 +630,10 @@ export default class SActivateComponent extends SAnchorWebComponent {
 	 * Unactive
 	 */
 	unactivate() {
+
+		// prevent from unactivate multiple times
+		if ( ! this.isActive()) return;
+
 		// before unactivate
 		this.props.beforeUnactivate && this.props.onBeforeUnactivate(this);
 
@@ -714,7 +722,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
 	update(scope = document.body) {
 
 		// target
-		let targetsSelector = this.props.target || this.props.href;
+		let targetsSelector = this.props.targets || this.props.href;
 
 		// remove # at start of targetsSelector
 		if (targetsSelector && targetsSelector.substr(0,1) === '#') {

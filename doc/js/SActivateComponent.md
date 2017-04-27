@@ -41,9 +41,9 @@ Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Referen
 Default : **null**
 
 
-### target
+### targets
 
-Specify the target of the activate link if want to override the href one
+Specify the targets of the activate link if want to override the href one
 
 Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/String) }**
 
