@@ -139,6 +139,16 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			// listen for trigger (click, mouseover, etc...)
 			this.addEventListener(this.props.trigger, this._onTriggerElement.bind(this));
 
+			// if we are on mobile and we listen for a touchmove, we cancel the event
+			if ('ontouchstart' in window) {
+				this.addEventListener('touchstart', function (e) {
+					_this2._isTouchMoved = false;
+				});
+				this.addEventListener('touchmove', function (e) {
+					_this2._isTouchMoved = true;
+				});
+			}
+
 			// listen for the activate event on the body to check if we need to unactivate
 			// this
 			document.body.addEventListener(this._componentNameDash + ':activate', function (e) {
@@ -311,6 +321,10 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 
 			e.preventDefault();
 			if (this.props.disabled) return;
+
+			// if is touch moved, means that we need to stop here cause the user does not
+			// have make a tap, but instead has swiped, or something else...
+			if (this._isTouchMoved) return;
 
 			clearTimeout(this._activateTimeout);
 			this._activateTimeout = setTimeout(function () {
