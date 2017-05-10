@@ -78,6 +78,15 @@ Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Referen
 Default : **active**
 
 
+### listenChilds
+
+Listen for childs being activated to activate ourself
+
+Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Boolean) }**
+
+Default : **true**
+
+
 ### history
 
 Set if want the component set his id in the URL

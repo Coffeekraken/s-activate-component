@@ -84,6 +84,13 @@ export default class SActivateComponent extends SAnchorWebComponent {
 			activeClass : 'active',
 
 			/**
+			 * Listen for childs being activated to activate ourself
+			 * @prop
+			 * @type 	{Boolean}
+			 */
+			listenChilds : true,
+
+			/**
 			 * Set if want the component set his id in the URL
 			 * @prop
 			 * @type 	{Boolean}
@@ -301,9 +308,11 @@ export default class SActivateComponent extends SAnchorWebComponent {
 		}
 
 		// listen for childs behin activated
-		[].forEach.call(this._sActivateTargets, (target) => {
-			target.addEventListener(`${this._componentNameDash}:activate`, this._onTargetActivate.bind(this), true);
-		});
+		if (this.props.listenChilds) {
+			[].forEach.call(this._sActivateTargets, (target) => {
+				target.addEventListener(`${this._componentNameDash}:activate`, this._onTargetActivate.bind(this), true);
+			});
+		}
 
 		// check if has an unactivate trigger
 		let unactivate_trigger = this.props.unactivateTrigger;

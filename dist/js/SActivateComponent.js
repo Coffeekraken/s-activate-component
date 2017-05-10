@@ -165,9 +165,11 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			}
 
 			// listen for childs behin activated
-			[].forEach.call(this._sActivateTargets, function (target) {
-				target.addEventListener(_this2._componentNameDash + ':activate', _this2._onTargetActivate.bind(_this2), true);
-			});
+			if (this.props.listenChilds) {
+				[].forEach.call(this._sActivateTargets, function (target) {
+					target.addEventListener(_this2._componentNameDash + ':activate', _this2._onTargetActivate.bind(_this2), true);
+				});
+			}
 
 			// check if has an unactivate trigger
 			var unactivate_trigger = this.props.unactivateTrigger;
@@ -798,6 +800,13 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      * @type 	{String}
      */
 				activeClass: 'active',
+
+				/**
+     * Listen for childs being activated to activate ourself
+     * @prop
+     * @type 	{Boolean}
+     */
+				listenChilds: true,
 
 				/**
      * Set if want the component set his id in the URL
