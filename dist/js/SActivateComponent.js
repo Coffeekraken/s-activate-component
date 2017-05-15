@@ -85,8 +85,8 @@ var SActivateComponent = function (_SAnchorWebComponent) {
    */
 		value: function componentWillMount() {
 			_get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), 'componentWillMount', this).call(this);
-			this._sActivateTargets = null;
-			this._sActivateTargetsDisabledTimeout = null;
+			this._targetElms = null;
+			this._targetElmsDisabledTimeout = null;
 			this._sActivateNestedItems = [];
 			document.body.addEventListener(this._componentNameDash + ':activate', this._componentWillMountBodyActivateListener.bind(this));
 		}
@@ -114,7 +114,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			// loop on each targets and each active elements to check if need to activate
 			// this element. This is to handle when a nested s-activate is inited before this
 			var activateCauseOfNestedActivatedItems = false;
-			[].forEach.call(this._sActivateTargets, function (target) {
+			[].forEach.call(this._targetElms, function (target) {
 				if (activateCauseOfNestedActivatedItems) return;
 				_this2._sActivateNestedItems.forEach(function (activateItem) {
 					if (target.contains(activateItem)) {
@@ -134,6 +134,27 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			// if we don't have any group yet
 			if (!this._getGroup(this)) {
 				this.setProp('group', 'group-' + Math.round(Math.random() * 99999999));
+			}
+
+			// handle mobile trigger cause it can not be mouseover
+			if ('ontouchstart' in window) {
+				this.setProp('trigger', 'touchend');
+			}
+
+			// handle close on outside click
+			if (this.props.closeOnOutsideClick) {
+				this.addEventListener('ontouchstart' in window ? 'touchend' : 'click', function (e) {
+					e.stopPropagation();
+				});
+				[].forEach.call(this._targetElms, function (targetElm) {
+					targetElm.addEventListener('ontouchstart' in window ? 'touchend' : 'click', function (e) {
+						e.stopPropagation();
+					});
+				});
+				document.addEventListener('ontouchstart' in window ? 'touchend' : 'click', function (e) {
+					// close the element
+					if (_this2.isActive()) _this2.unactivate();
+				});
 			}
 
 			// listen for trigger (click, mouseover, etc...)
@@ -166,7 +187,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 
 			// listen for childs behin activated
 			if (this.props.listenChilds) {
-				[].forEach.call(this._sActivateTargets, function (target) {
+				[].forEach.call(this._targetElms, function (target) {
 					target.addEventListener(_this2._componentNameDash + ':activate', _this2._onTargetActivate.bind(_this2), true);
 				});
 			}
@@ -176,7 +197,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			if (unactivate_trigger) {
 				this.addEventListener(unactivate_trigger, this._onElmUnactivate.bind(this));
 				if (unactivate_trigger == 'mouseleave' || unactivate_trigger == 'mouseout') {
-					[].forEach.call(this._sActivateTargets, function (target) {
+					[].forEach.call(this._targetElms, function (target) {
 						target.addEventListener('mouseenter', _this2._onTargetMouseEnter.bind(_this2));
 						target.addEventListener(unactivate_trigger, _this2._onTargetUnactivate.bind(_this2));
 					});
@@ -187,7 +208,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			if (this.classList.contains(this.props.activeClass)) {
 				// activate the targets
 				// but to not dispatch any events etc...
-				[].forEach.call(this._sActivateTargets, function (target) {
+				[].forEach.call(this._targetElms, function (target) {
 					target.classList.add(_this2.props.activeTargetClass || _this2.props.activeClass);
 				});
 			}
@@ -222,20 +243,20 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			this.removeEventListener(this.props.trigger, this._onTriggerElement);
 			// remove all the classes
 			this.classList.remove(this.props.activeClass);
-			[].forEach.call(this._sActivateTargets, function (target) {
+			[].forEach.call(this._targetElms, function (target) {
 				// remove the class from targets
 				target.classList.remove(_this3.props.activeTargetClass || _this3.props.activeClass);
 				// stop listening for activate event
 				target.removeEventListener(_this3._componentNameDash + ':activate', _this3._onTargetActivate, true);
 			});
-			[].forEach.call(this._sActivateTargets, function (target) {
+			[].forEach.call(this._targetElms, function (target) {
 				if (target._sActivateAttributesObservable) {
 					target._sActivateAttributesObservable.unsubscribe();
 				}
 			});
 			if (this.props.unactivateTrigger) {
 				this.removeEventListener(this.props.unactivateTrigger, this._onElmUnactivate);
-				[].forEach.call(this._sActivateTargets, function (target) {
+				[].forEach.call(this._targetElms, function (target) {
 					target.removeEventListener('mouseenter', _this3._onTargetMouseEnter);
 					target.removeEventListener(_this3.props.unactivateTrigger, _this3._onTargetUnactivate);
 				});
@@ -334,7 +355,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 				// if the target is the element itself
 				// we stop if the current target if not
 				// the element itselg to avoid issues
-				if (_this5._sActivateTargets.length === 1 && _this5._sActivateTargets[0] === _this5) {
+				if (_this5._targetElms.length === 1 && _this5._targetElms[0] === _this5) {
 					if (e.target !== _this5) return;
 				}
 
@@ -469,7 +490,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			this.classList.add(this.props.activeClass);
 
 			// activate all the targets
-			[].forEach.call(this._sActivateTargets, function (target) {
+			[].forEach.call(this._targetElms, function (target) {
 				_this8.activateTarget(target);
 				// dispatch an event to tell parents that this target is activated
 				(0, _dispatchEvent2.default)(target, _this8._componentNameDash + ':activate', {
@@ -587,8 +608,8 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			this.classList.remove(this.props.activeClass);
 
 			// unactive targets
-			if (this._sActivateTargets instanceof NodeList) {
-				[].forEach.call(this._sActivateTargets, function (target) {
+			if (this._targetElms instanceof NodeList) {
+				[].forEach.call(this._targetElms, function (target) {
 					_this10.unactivateTarget(target);
 					// dispatch an event to tell parents that this target is unactivated
 					(0, _dispatchEvent2.default)(target, _this10._componentNameDash + ':unactivate', {
@@ -655,7 +676,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 		key: '_checkDisabledTargets',
 		value: function _checkDisabledTargets() {
 			var allDisabled = true;
-			[].forEach.call(this._sActivateTargets, function (target) {
+			[].forEach.call(this._targetElms, function (target) {
 				if (!target.hasAttribute('disabled')) {
 					allDisabled = false;
 				}
@@ -716,15 +737,15 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 
 			// update the targetsSelectors array
 			if (targetsSelector) {
-				this._sActivateTargets = scope.querySelectorAll('#' + targetsSelector + ',[' + this._componentNameDash + '-target="' + targetsSelector + '"]');
-				[].forEach.call(this._sActivateTargets, function (t) {
+				this._targetElms = scope.querySelectorAll('#' + targetsSelector + ',[' + this._componentNameDash + '-target="' + targetsSelector + '"]');
+				[].forEach.call(this._targetElms, function (t) {
 					// observe disable attribute on the target
 					if (!t._sActivateAttributesObservable) {
 						t._sActivateAttributesObservable = (0, _attributesObservable2.default)(t, {
 							attributeFilter: ['disabled']
 						}).subscribe(function (mutation) {
-							clearTimeout(_this11._sActivateTargetsDisabledTimeout);
-							_this11._sActivateTargetsDisabledTimeout = setTimeout(function () {
+							clearTimeout(_this11._targetElmsDisabledTimeout);
+							_this11._targetElmsDisabledTimeout = setTimeout(function () {
 								_this11._checkDisabledTargets();
 							});
 						});
@@ -734,7 +755,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 				// check disabled targets first time
 				this._checkDisabledTargets();
 			} else {
-				this._sActivateTargets = [];
+				this._targetElms = [];
 			}
 
 			// save the selector
@@ -856,6 +877,13 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      * @type 	{String}
      */
 				unactivateTrigger: null,
+
+				/**
+     * Close when clicking outside
+     * @prop
+     * @type 	{Boolean}
+     */
+				closeOnOutsideClick: false,
 
 				/**
      * Specify a timeout before actually activating the component

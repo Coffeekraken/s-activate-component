@@ -150,6 +150,15 @@ Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Referen
 Default : **null**
 
 
+### closeOnOutsideClick
+
+Close when clicking outside
+
+Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Boolean) }**
+
+Default : **false**
+
+
 ### activateTimeout
 
 Specify a timeout before actually activating the component
