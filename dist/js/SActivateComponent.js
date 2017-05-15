@@ -159,6 +159,12 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 
 			// listen for trigger (click, mouseover, etc...)
 			this.addEventListener(this.props.trigger, this._onTriggerElement.bind(this));
+			// if is not "click", we need to prevent the default behavior of it anyway
+			if (this.props.trigger !== 'click') {
+				this.addEventListener('click', function (e) {
+					return e.preventDefault();
+				});
+			}
 
 			// if we are on mobile and we listen for a touchmove, we cancel the event
 			if ('ontouchstart' in window) {
