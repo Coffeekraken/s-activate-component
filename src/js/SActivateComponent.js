@@ -25,9 +25,9 @@ const _nestedActiveElements = [];
  * @example 	html
  * <style>
  * 	#my-target { display: none; }
- * 	#my-target.active { display: block; }
+ * 	#my-target.active { display: block; }
  * </style>
- * <a href="#my-target" is="s-activate">Click me to activate the target</a>
+ * <a href="#my-target" is="s-activate" toggle>Click me to activate the target</a>
  * <div id="my-target">
  * 	I will have an "active" class when the link has been clicked
  * </div>
