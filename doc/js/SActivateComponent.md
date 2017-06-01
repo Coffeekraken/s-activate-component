@@ -16,9 +16,9 @@ Features:
 ```html
 	<style>
 	#my-target { display: none; }
-	#my-target.active { display: block; }
+	#my-target.active { display: block; }
 </style>
-<a href="#my-target" is="s-activate">Click me to activate the target</a>
+<a href="#my-target" is="s-activate" toggle>Click me to activate the target</a>
 <div id="my-target">
 	I will have an "active" class when the link has been clicked
 </div>
@@ -35,6 +35,15 @@ Here's the list of available attribute to set on the element.
 ### href
 
 Specify the target to activate. A target can be an HTMLElement with an id or an s-activate-target="{id}" attribute.
+
+Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/String) }**
+
+Default : **null**
+
+
+### targets
+
+Specify the targets of the activate link if want to override the href one
 
 Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/String) }**
 
@@ -67,6 +76,15 @@ Specify the class that will be applied on this component and on the targets when
 Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/String) }**
 
 Default : **active**
+
+
+### listenChilds
+
+Listen for childs being activated to activate ourself
+
+Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Boolean) }**
+
+Default : **true**
 
 
 ### history
@@ -130,6 +148,15 @@ Specify the event that will unactivate the component. By default, it's the same 
 Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/String) }**
 
 Default : **null**
+
+
+### closeOnOutsideClick
+
+Close when clicking outside
+
+Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Boolean) }**
+
+Default : **false**
 
 
 ### activateTimeout
