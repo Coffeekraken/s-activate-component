@@ -55,9 +55,9 @@ var _nestedActiveElements = [];
  * @example 	html
  * <style>
  * 	#my-target { display: none; }
- * 	#my-target.active { display: block; }
+ * 	#my-target.active { display: block; }
  * </style>
- * <a href="#my-target" is="s-activate">Click me to activate the target</a>
+ * <a href="#my-target" is="s-activate" toggle>Click me to activate the target</a>
  * <div id="my-target">
  * 	I will have an "active" class when the link has been clicked
  * </div>
@@ -85,8 +85,8 @@ var SActivateComponent = function (_SAnchorWebComponent) {
    */
 		value: function componentWillMount() {
 			_get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), 'componentWillMount', this).call(this);
-			this._sActivateTargets = null;
-			this._sActivateTargetsDisabledTimeout = null;
+			this._targetElms = null;
+			this._targetElmsDisabledTimeout = null;
 			this._sActivateNestedItems = [];
 			document.body.addEventListener(this._componentNameDash + ':activate', this._componentWillMountBodyActivateListener.bind(this));
 		}
@@ -114,7 +114,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			// loop on each targets and each active elements to check if need to activate
 			// this element. This is to handle when a nested s-activate is inited before this
 			var activateCauseOfNestedActivatedItems = false;
-			[].forEach.call(this._sActivateTargets, function (target) {
+			[].forEach.call(this._targetElms, function (target) {
 				if (activateCauseOfNestedActivatedItems) return;
 				_this2._sActivateNestedItems.forEach(function (activateItem) {
 					if (target.contains(activateItem)) {
@@ -136,8 +136,45 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 				this.setProp('group', 'group-' + Math.round(Math.random() * 99999999));
 			}
 
+			// handle mobile trigger cause it can not be mouseover
+			if ('ontouchstart' in window) {
+				this.setProp('trigger', 'touchend');
+			}
+
+			// handle close on outside click
+			if (this.props.closeOnOutsideClick) {
+				this.addEventListener('ontouchstart' in window ? 'touchend' : 'click', function (e) {
+					e.stopPropagation();
+				});
+				[].forEach.call(this._targetElms, function (targetElm) {
+					targetElm.addEventListener('ontouchstart' in window ? 'touchend' : 'click', function (e) {
+						e.stopPropagation();
+					});
+				});
+				document.addEventListener('ontouchstart' in window ? 'touchend' : 'click', function (e) {
+					// close the element
+					if (_this2.isActive()) _this2.unactivate();
+				});
+			}
+
 			// listen for trigger (click, mouseover, etc...)
 			this.addEventListener(this.props.trigger, this._onTriggerElement.bind(this));
+			// if is not "click", we need to prevent the default behavior of it anyway
+			if (this.props.trigger !== 'click') {
+				this.addEventListener('click', function (e) {
+					return e.preventDefault();
+				});
+			}
+
+			// if we are on mobile and we listen for a touchmove, we cancel the event
+			if ('ontouchstart' in window) {
+				this.addEventListener('touchstart', function (e) {
+					_this2._isTouchMoved = false;
+				});
+				this.addEventListener('touchmove', function (e) {
+					_this2._isTouchMoved = true;
+				});
+			}
 
 			// listen for the activate event on the body to check if we need to unactivate
 			// this
@@ -155,16 +192,18 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			}
 
 			// listen for childs behin activated
-			[].forEach.call(this._sActivateTargets, function (target) {
-				target.addEventListener(_this2._componentNameDash + ':activate', _this2._onTargetActivate.bind(_this2), true);
-			});
+			if (this.props.listenChilds) {
+				[].forEach.call(this._targetElms, function (target) {
+					target.addEventListener(_this2._componentNameDash + ':activate', _this2._onTargetActivate.bind(_this2), true);
+				});
+			}
 
 			// check if has an unactivate trigger
 			var unactivate_trigger = this.props.unactivateTrigger;
 			if (unactivate_trigger) {
 				this.addEventListener(unactivate_trigger, this._onElmUnactivate.bind(this));
 				if (unactivate_trigger == 'mouseleave' || unactivate_trigger == 'mouseout') {
-					[].forEach.call(this._sActivateTargets, function (target) {
+					[].forEach.call(this._targetElms, function (target) {
 						target.addEventListener('mouseenter', _this2._onTargetMouseEnter.bind(_this2));
 						target.addEventListener(unactivate_trigger, _this2._onTargetUnactivate.bind(_this2));
 					});
@@ -175,7 +214,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			if (this.classList.contains(this.props.activeClass)) {
 				// activate the targets
 				// but to not dispatch any events etc...
-				[].forEach.call(this._sActivateTargets, function (target) {
+				[].forEach.call(this._targetElms, function (target) {
 					target.classList.add(_this2.props.activeTargetClass || _this2.props.activeClass);
 				});
 			}
@@ -210,20 +249,20 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			this.removeEventListener(this.props.trigger, this._onTriggerElement);
 			// remove all the classes
 			this.classList.remove(this.props.activeClass);
-			[].forEach.call(this._sActivateTargets, function (target) {
+			[].forEach.call(this._targetElms, function (target) {
 				// remove the class from targets
 				target.classList.remove(_this3.props.activeTargetClass || _this3.props.activeClass);
 				// stop listening for activate event
 				target.removeEventListener(_this3._componentNameDash + ':activate', _this3._onTargetActivate, true);
 			});
-			[].forEach.call(this._sActivateTargets, function (target) {
+			[].forEach.call(this._targetElms, function (target) {
 				if (target._sActivateAttributesObservable) {
 					target._sActivateAttributesObservable.unsubscribe();
 				}
 			});
 			if (this.props.unactivateTrigger) {
 				this.removeEventListener(this.props.unactivateTrigger, this._onElmUnactivate);
-				[].forEach.call(this._sActivateTargets, function (target) {
+				[].forEach.call(this._targetElms, function (target) {
 					target.removeEventListener('mouseenter', _this3._onTargetMouseEnter);
 					target.removeEventListener(_this3.props.unactivateTrigger, _this3._onTargetUnactivate);
 				});
@@ -249,8 +288,8 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 					});
 					break;
 				case 'class':
-					newVal = newVal || '';
-					oldVal = oldVal || '';
+					newVal = typeof newVal === 'string' ? newVal : '';
+					oldVal = typeof oldVal === 'string' ? oldVal : '';
 					var newClasses = newVal.split(' ');
 					var oldClasses = oldVal.split(' ');
 					if (newClasses.indexOf(this.props.activeClass) !== -1 && oldClasses.indexOf(this.props.activeClass) === -1) {
@@ -312,13 +351,17 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			e.preventDefault();
 			if (this.props.disabled) return;
 
+			// if is touch moved, means that we need to stop here cause the user does not
+			// have make a tap, but instead has swiped, or something else...
+			if (this._isTouchMoved) return;
+
 			clearTimeout(this._activateTimeout);
 			this._activateTimeout = setTimeout(function () {
 
 				// if the target is the element itself
 				// we stop if the current target if not
 				// the element itselg to avoid issues
-				if (_this5._sActivateTargets.length === 1 && _this5._sActivateTargets[0] === _this5) {
+				if (_this5._targetElms.length === 1 && _this5._targetElms[0] === _this5) {
 					if (e.target !== _this5) return;
 				}
 
@@ -440,6 +483,9 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 		value: function _activate() {
 			var _this8 = this;
 
+			// prevent from activate multiple times
+			if (this.isActive()) return;
+
 			// before activate callback
 			this.props.beforeActivate && this.props.beforeActivate(this);
 
@@ -450,7 +496,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			this.classList.add(this.props.activeClass);
 
 			// activate all the targets
-			[].forEach.call(this._sActivateTargets, function (target) {
+			[].forEach.call(this._targetElms, function (target) {
 				_this8.activateTarget(target);
 				// dispatch an event to tell parents that this target is activated
 				(0, _dispatchEvent2.default)(target, _this8._componentNameDash + ':activate', {
@@ -555,6 +601,9 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 		value: function unactivate() {
 			var _this10 = this;
 
+			// prevent from unactivate multiple times
+			if (!this.isActive()) return;
+
 			// before unactivate
 			this.props.beforeUnactivate && this.props.onBeforeUnactivate(this);
 
@@ -565,8 +614,8 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			this.classList.remove(this.props.activeClass);
 
 			// unactive targets
-			if (this._sActivateTargets instanceof NodeList) {
-				[].forEach.call(this._sActivateTargets, function (target) {
+			if (this._targetElms instanceof NodeList) {
+				[].forEach.call(this._targetElms, function (target) {
 					_this10.unactivateTarget(target);
 					// dispatch an event to tell parents that this target is unactivated
 					(0, _dispatchEvent2.default)(target, _this10._componentNameDash + ':unactivate', {
@@ -633,7 +682,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 		key: '_checkDisabledTargets',
 		value: function _checkDisabledTargets() {
 			var allDisabled = true;
-			[].forEach.call(this._sActivateTargets, function (target) {
+			[].forEach.call(this._targetElms, function (target) {
 				if (!target.hasAttribute('disabled')) {
 					allDisabled = false;
 				}
@@ -659,7 +708,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 
 
 			// target
-			var targetsSelector = this.props.target || this.props.href;
+			var targetsSelector = this.props.targets || this.props.href;
 
 			// remove # at start of targetsSelector
 			if (targetsSelector && targetsSelector.substr(0, 1) === '#') {
@@ -694,15 +743,15 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 
 			// update the targetsSelectors array
 			if (targetsSelector) {
-				this._sActivateTargets = scope.querySelectorAll('#' + targetsSelector + ',[' + this._componentNameDash + '-target="' + targetsSelector + '"]');
-				[].forEach.call(this._sActivateTargets, function (t) {
+				this._targetElms = scope.querySelectorAll('#' + targetsSelector + ',[' + this._componentNameDash + '-target="' + targetsSelector + '"]');
+				[].forEach.call(this._targetElms, function (t) {
 					// observe disable attribute on the target
 					if (!t._sActivateAttributesObservable) {
 						t._sActivateAttributesObservable = (0, _attributesObservable2.default)(t, {
 							attributeFilter: ['disabled']
 						}).subscribe(function (mutation) {
-							clearTimeout(_this11._sActivateTargetsDisabledTimeout);
-							_this11._sActivateTargetsDisabledTimeout = setTimeout(function () {
+							clearTimeout(_this11._targetElmsDisabledTimeout);
+							_this11._targetElmsDisabledTimeout = setTimeout(function () {
 								_this11._checkDisabledTargets();
 							});
 						});
@@ -712,7 +761,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 				// check disabled targets first time
 				this._checkDisabledTargets();
 			} else {
-				this._sActivateTargets = [];
+				this._targetElms = [];
 			}
 
 			// save the selector
@@ -751,6 +800,13 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 				class: null,
 
 				/**
+     * Specify the targets of the activate link if want to override the href one
+     * @prop
+     * @type 	{String}
+     */
+				targets: null,
+
+				/**
      * Specify the group in which this activate element lives. This is useful to create things like tabs, accordion, etc...
      * Basicaly, when an item of the same group is activated, the others will be unactivate automatically.
      * @prop
@@ -771,6 +827,13 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      * @type 	{String}
      */
 				activeClass: 'active',
+
+				/**
+     * Listen for childs being activated to activate ourself
+     * @prop
+     * @type 	{Boolean}
+     */
+				listenChilds: true,
 
 				/**
      * Set if want the component set his id in the URL
@@ -820,6 +883,13 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      * @type 	{String}
      */
 				unactivateTrigger: null,
+
+				/**
+     * Close when clicking outside
+     * @prop
+     * @type 	{Boolean}
+     */
+				closeOnOutsideClick: false,
 
 				/**
      * Specify a timeout before actually activating the component
