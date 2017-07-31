@@ -51,7 +51,6 @@ var _nestedActiveElements = [];
  * - Saving state
  * - And more...
  *
- * @styleguide 	Objects / Activate Link
  * @example 	html
  * <style>
  * 	#my-target { display: none; }

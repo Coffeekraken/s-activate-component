@@ -1,6 +1,6 @@
 {
 	"name": "coffeekraken-s-activate-component",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Simple <a> webcomponent extension that give the ability to activate a target element by adding/removing a class on it. Useful to create some toggle, tabs, etc... behaviors.",
 	"main": "dist/index.js",
   "homepage": "http://coffeekraken.io",
@@ -23,7 +23,8 @@
     "doc.css": "coffeekraken-docblock-to-markdown -f 'src/**/*.scss' -d doc --remove-path src/",
     "test": "coffeekraken-testing-stack",
     "start": "npm-watch",
-    "watch": "npm-watch"
+    "watch": "npm-watch",
+    "changelog": "git-changelog --version_name $npm_package_version  --app_name $npm_package_name --intro \"$npm_package_description\" --logo \".resources/coffeekraken-logo.jpg\""
   },
 	"keywords": [
     "activate",
@@ -61,11 +62,12 @@
     "coffeekraken-docblock-to-markdown": "0.0.2",
     "coffeekraken-testing-stack": "0.0.2",
     "concurrently": "^3.1.0",
+    "git-changelog": "^1.1.2",
     "http-server": "^0.9.0",
     "node-sass": "^4.0.0",
     "nodemon": "^1.11.0",
     "npm-watch": "^0.1.8",
-    "webcomponents.js": "^0.7.24",
+    "@webcomponents/webcomponentsjs": "^1.0.0",
     "webpack": "^2.0.0"
 	}
 }
