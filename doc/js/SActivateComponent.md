@@ -87,6 +87,15 @@ Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Refere
 Default : **false**
 
 
+### unactivateOnOutsideClick
+
+Set if we want to unactivate the component on an outside click
+
+Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Boolean) }**
+
+Default : **false**
+
+
 ### history
 
 Set if want the component set his id in the URL

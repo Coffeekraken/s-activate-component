@@ -99,6 +99,8 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 	}, {
 		key: 'componentMount',
 		value: function componentMount() {
+			var _this2 = this;
+
 			_get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), 'componentMount', this).call(this);
 
 			// make sure we have a target element to work with
@@ -143,6 +145,20 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			if (this.props.listenChilds) {
 				targetElm.addEventListener(this.componentNameDash + ':activate', this._onNestedComponentActivate.bind(this));
 			}
+
+			// if we want to unactivate the component on an outside click
+			if (this.props.unactivateOnOutsideClick) {
+				this.addEventListener('click', function (e) {
+					e.stopPropagation();
+				});
+				targetElm.addEventListener('click', function (e) {
+					e.stopPropagation();
+				});
+				document.addEventListener('click', function (e) {
+					// close the element
+					if (_this2.isActive()) _this2.unactivate();
+				});
+			}
 		}
 
 		/**
@@ -153,11 +169,11 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 	}, {
 		key: '_onUnactivateTrigger',
 		value: function _onUnactivateTrigger(e) {
-			var _this2 = this;
+			var _this3 = this;
 
 			clearTimeout(this._unactivateTimeout);
 			this._unactivateTimeout = setTimeout(function () {
-				_this2.unactivate();
+				_this3.unactivate();
 			}, this.props.unactivateTimeout);
 		}
 
@@ -181,11 +197,11 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 	}, {
 		key: '_onTargetUnactivateTrigger',
 		value: function _onTargetUnactivateTrigger(e) {
-			var _this3 = this;
+			var _this4 = this;
 
 			clearTimeout(this._unactivateTimeout);
 			this._unactivateTimeout = setTimeout(function () {
-				_this3.unactivate();
+				_this4.unactivate();
 			}, this.props.unactivateTimeout);
 		}
 
@@ -213,11 +229,11 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 	}, {
 		key: '_handleHistory',
 		value: function _handleHistory() {
-			var _this4 = this;
+			var _this5 = this;
 
 			if (this.props.history) {
 				window.addEventListener('hashchange', function (e) {
-					_this4._processHistoryChange();
+					_this5._processHistoryChange();
 				});
 			}
 		}
@@ -229,14 +245,14 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 	}, {
 		key: '_checkHashAndActivateIfNeeded',
 		value: function _checkHashAndActivateIfNeeded() {
-			var _this5 = this;
+			var _this6 = this;
 
 			setTimeout(function () {
 				// check with hash if need to activate the element
-				if (_this5.props.hash) {
+				if (_this6.props.hash) {
 					var hash = document.location.hash;
-					if (hash && hash === _this5._getTargetHash()) {
-						_this5._processActivate();
+					if (hash && hash === _this6._getTargetHash()) {
+						_this6._processActivate();
 					}
 				}
 			});
@@ -379,10 +395,10 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 	}, {
 		key: '_getComponentOfTheSameGroupExceptMe',
 		value: function _getComponentOfTheSameGroupExceptMe() {
-			var _this6 = this;
+			var _this7 = this;
 
 			return this._getComponentOfTheSameGroup().filter(function (elm) {
-				return elm !== _this6;
+				return elm !== _this7;
 			});
 		}
 
@@ -506,9 +522,11 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			// check the save state method
 			switch (this.props.saveState) {
 				case 'sessionStorage':
+				case sessionStorage:
 					sessionStorage.setItem(this._componentNameDash + '-' + hash, activated);
 					break;
 				case 'localStorage':
+				case localStorage:
 				case true:
 					localStorage.setItem(this._componentNameDash + '-' + hash, activated);
 					break;
@@ -526,11 +544,13 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			// check the save state method
 			switch (this.props.saveState) {
 				case 'sessionStorage':
+				case sessionStorage:
 					if (eval(sessionStorage.getItem(this._componentNameDash + '-' + hash))) {
 						this.activate();
 					}
 					break;
 				case 'localStorage':
+				case localStorage:
 				case true:
 					if (eval(localStorage.getItem(this._componentNameDash + '-' + hash))) {
 						this.activate();
@@ -604,6 +624,13 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      * @type 	{Boolean}
      */
 				listenChilds: false,
+
+				/**
+     * Set if we want to unactivate the component on an outside click
+     * @prop
+     * @type 	{Boolean}
+     */
+				unactivateOnOutsideClick: false,
 
 				/**
      * Set if want the component set his id in the URL

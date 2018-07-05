@@ -89,6 +89,13 @@ export default class SActivateComponent extends SAnchorWebComponent {
 			listenChilds : false,
 
 			/**
+			 * Set if we want to unactivate the component on an outside click
+			 * @prop
+			 * @type 	{Boolean}
+			 */
+			unactivateOnOutsideClick : false,
+
+			/**
 			 * Set if want the component set his id in the URL
 			 * @prop
 			 * @type 	{Boolean}
@@ -261,6 +268,20 @@ export default class SActivateComponent extends SAnchorWebComponent {
 		// to activate myself when a nested item if activated
 		if (this.props.listenChilds) {
 			targetElm.addEventListener(`${this.componentNameDash}:activate`, this._onNestedComponentActivate.bind(this))
+		}
+
+		// if we want to unactivate the component on an outside click
+		if (this.props.unactivateOnOutsideClick) {
+			this.addEventListener('click', (e) => {
+				e.stopPropagation()
+			})
+			targetElm.addEventListener('click', (e) => {
+				e.stopPropagation()
+			})
+			document.addEventListener('click', (e) => {
+				// close the element
+				if (this.isActive()) this.unactivate()
+			})
 		}
 	}
 
@@ -561,9 +582,11 @@ export default class SActivateComponent extends SAnchorWebComponent {
 		// check the save state method
 		switch(this.props.saveState) {
 			case 'sessionStorage':
+			case sessionStorage:
 				sessionStorage.setItem(`${this._componentNameDash}-${hash}`, activated);
 			break;
 			case 'localStorage':
+			case localStorage:
 			case true:
 				localStorage.setItem(`${this._componentNameDash}-${hash}`, activated);
 			break;
@@ -578,11 +601,13 @@ export default class SActivateComponent extends SAnchorWebComponent {
 		// check the save state method
 		switch(this.props.saveState) {
 			case 'sessionStorage':
+			case sessionStorage:
 				if (eval(sessionStorage.getItem(`${this._componentNameDash}-${hash}`))) {
 					this.activate()
 				}
 			break;
 			case 'localStorage':
+			case localStorage:
 			case true:
 				if (eval(localStorage.getItem(`${this._componentNameDash}-${hash}`))) {
 					this.activate()
