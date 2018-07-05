@@ -34,16 +34,16 @@ Here's the list of available attribute to set on the element.
 
 ### href
 
-Specify the target to activate. A target is an HTMLElement with an id attribute.
+Specify the target to activate. A target can be an HTMLElement with an id or an s-activate-target="{id}" attribute.
 
 Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/String) }**
 
 Default : **null**
 
 
-### for
+### targets
 
-Specify the target of the activate link if want to override the href one
+Specify the targets of the activate link if want to override the href one
 
 Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/String) }**
 
@@ -84,16 +84,7 @@ Listen for childs being activated to activate ourself
 
 Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Boolean) }**
 
-Default : **false**
-
-
-### unactivateOnOutsideClick
-
-Set if we want to unactivate the component on an outside click
-
-Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Boolean) }**
-
-Default : **false**
+Default : **true**
 
 
 ### history
@@ -102,7 +93,7 @@ Set if want the component set his id in the URL
 
 Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Boolean) }**
 
-Default : **false**
+Default : **true**
 
 
 ### hash
@@ -159,6 +150,24 @@ Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Referen
 Default : **null**
 
 
+### closeOnOutsideClick
+
+Close when clicking outside
+
+Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Boolean) }**
+
+Default : **false**
+
+
+### activateTimeout
+
+Specify a timeout before actually activating the component
+
+Type : **{ [Number](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Number) }**
+
+Default : **0**
+
+
 ### unactivateTimeout
 
 Specify a timeout before actually unactivate the component
@@ -175,7 +184,7 @@ The url will be set using the window.history.pushState instead of the location.h
 
 Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Boolean) }**
 
-Default : **true**
+Default : **false**
 
 
 ### beforeActivate
@@ -222,6 +231,26 @@ Type : **{ [Function](https://developer.mozilla.org/fr/docs/Web/JavaScript/Refer
 Check if is active
 
 
+### activateTarget
+
+Activate a target element
+
+
+Name  |  Type  |  Description  |  Status  |  Default
+------------  |  ------------  |  ------------  |  ------------  |  ------------
+target  |  **{ [HTMLElement](https://developer.mozilla.org/fr/docs/Web/API/HTMLElement) }**  |  The target to activatee  |  required  |
+
+
+### unactivateTarget
+
+Unactivate a target element
+
+
+Name  |  Type  |  Description  |  Status  |  Default
+------------  |  ------------  |  ------------  |  ------------  |  ------------
+target  |  **{ [HTMLElement](https://developer.mozilla.org/fr/docs/Web/API/HTMLElement) }**  |  The target to activatee  |  required  |
+
+
 ### activate
 
 Activate the element
@@ -230,3 +259,13 @@ Activate the element
 ### unactivate
 
 Unactive
+
+
+### update
+
+Update targets, etc...
+
+
+Name  |  Type  |  Description  |  Status  |  Default
+------------  |  ------------  |  ------------  |  ------------  |  ------------
+scope  |  **{ [HTMLElement](https://developer.mozilla.org/fr/docs/Web/API/HTMLElement) }**  |  The scope to update  |  optional  |  document.body

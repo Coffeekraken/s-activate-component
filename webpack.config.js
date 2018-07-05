@@ -1,4 +1,5 @@
 module.exports = {
+	mode: 'development',
 	entry: {
 		'demo/dist/js/app.js' : './demo/src/js/app.js'
 	},
