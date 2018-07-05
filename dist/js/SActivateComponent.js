@@ -30,6 +30,8 @@ var _attributesObservable2 = _interopRequireDefault(_attributesObservable);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -86,10 +88,6 @@ var SActivateComponent = function (_SAnchorWebComponent) {
    */
 		value: function componentWillMount() {
 			_get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), 'componentWillMount', this).call(this);
-			this._targetElms = null;
-			this._targetElmsDisabledTimeout = null;
-			this._sActivateNestedItems = [];
-			document.body.addEventListener(this._componentNameDash + ':activate', this._componentWillMountBodyActivateListener.bind(this));
 		}
 
 		/**
@@ -105,36 +103,10 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 
 			_get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), 'componentMount', this).call(this);
 
-			// stop listening for activate elements that have been activated
-			// BEFORE this is mounted
-			document.body.removeEventListener(this._componentNameDash + ':activate', this._componentWillMountBodyActivateListener);
-
-			// update references
-			this.update();
-
-			// loop on each targets and each active elements to check if need to activate
-			// this element. This is to handle when a nested s-activate is inited before this
-			var activateCauseOfNestedActivatedItems = false;
-			[].forEach.call(this._targetElms, function (target) {
-				if (activateCauseOfNestedActivatedItems) return;
-				_this2._sActivateNestedItems.forEach(function (activateItem) {
-					if (target.contains(activateItem)) {
-						_this2._activate();
-						activateCauseOfNestedActivatedItems = true;
-					}
-				});
-			});
-			// reset activate nested items (just to be sure)
-			this._sActivateNestedItems = [];
-
-			// handle history if needed
-			if (this.props.history) {
-				this._handleHistory();
-			}
-
-			// if we don't have any group yet
-			if (!this._getGroup(this)) {
-				this.setProp('group', 'group-' + Math.round(Math.random() * 99999999));
+			// make sure we have a target element to work with
+			var targetElm = this._getTargetElm();
+			if (!targetElm) {
+				throw 'No HTMLElement correspond to the ' + this.componentNameDash + ' hash "' + this._getTargetHash() + '". The ' + this.componentNameDash + ' component need a proper target to work with...';
 			}
 
 			// handle mobile trigger cause it can not be mouseover
@@ -142,96 +114,186 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 				this.setProp('trigger', 'touchend');
 			}
 
-			// handle close on outside click
-			if (this.props.closeOnOutsideClick) {
-				this.addEventListener('ontouchstart' in window ? 'touchend' : 'click', function (e) {
+			// listen for the trigger
+			this.addEventListener(this.props.trigger, this._onTrigger.bind(this));
+
+			// listen for the unactivate trigger if needed
+			if (this.props.unactivateTrigger) {
+				this.addEventListener(this.props.unactivateTrigger, this._onUnactivateTrigger.bind(this));
+				if (this.props.unactivateTrigger === 'mouseleave' || this.props.unactivateTrigger === 'mouseout') {
+					targetElm.addEventListener('mouseenter', this._onTargetMouseEnter.bind(this));
+					targetElm.addEventListener(this.props.unactivateTrigger, this._onUnactivateTrigger.bind(this));
+				}
+			}
+
+			// listen for hash changes
+			this._handleHistory();
+
+			// check hash to activate the component if needed
+			this._checkHashAndActivateIfNeeded();
+
+			// check if need to activate myself due to the active class
+			if (this.classList.contains(this.props.activeClass)) {
+				this._processActivate();
+			}
+
+			// restore state if needed
+			if (this.props.saveState) this._restoreState();
+
+			// listen for the s-activate:activate event on the target element
+			// to activate myself when a nested item if activated
+			if (this.props.listenChilds) {
+				targetElm.addEventListener(this.componentNameDash + ':activate', this._onNestedComponentActivate.bind(this));
+			}
+
+			// if we want to unactivate the component on an outside click
+			if (this.props.unactivateOnOutsideClick) {
+				this.addEventListener('click', function (e) {
 					e.stopPropagation();
 				});
-				[].forEach.call(this._targetElms, function (targetElm) {
-					targetElm.addEventListener('ontouchstart' in window ? 'touchend' : 'click', function (e) {
-						e.stopPropagation();
-					});
+				targetElm.addEventListener('click', function (e) {
+					e.stopPropagation();
 				});
-				document.addEventListener('ontouchstart' in window ? 'touchend' : 'click', function (e) {
+				document.addEventListener('click', function (e) {
 					// close the element
 					if (_this2.isActive()) _this2.unactivate();
 				});
 			}
+		}
 
-			// listen for trigger (click, mouseover, etc...)
-			this.addEventListener(this.props.trigger, this._onTriggerElement.bind(this));
-			// if is not "click", we need to prevent the default behavior of it anyway
-			if (this.props.trigger !== 'click') {
-				this.addEventListener('click', function (e) {
-					return e.preventDefault();
+		/**
+   * When the unactivateTrigger is fired
+   * @param 	{Event} 	e 		The unactivateTrigger event
+   */
+
+	}, {
+		key: '_onUnactivateTrigger',
+		value: function _onUnactivateTrigger(e) {
+			var _this3 = this;
+
+			clearTimeout(this._unactivateTimeout);
+			this._unactivateTimeout = setTimeout(function () {
+				_this3.unactivate();
+			}, this.props.unactivateTimeout);
+		}
+
+		/**
+   * When the mouse enter the target element
+   * @param 	{MouseEvent} 	e 	The mouseenter event
+   */
+
+	}, {
+		key: '_onTargetMouseEnter',
+		value: function _onTargetMouseEnter(e) {
+			// clear the unactivate timeout
+			clearTimeout(this._unactivateTimeout);
+		}
+
+		/**
+   * When the unactivateTrigger is fired from the target element
+   * @param 	{Event} 	e 		The unactivateTrigger event
+   */
+
+	}, {
+		key: '_onTargetUnactivateTrigger',
+		value: function _onTargetUnactivateTrigger(e) {
+			var _this4 = this;
+
+			clearTimeout(this._unactivateTimeout);
+			this._unactivateTimeout = setTimeout(function () {
+				_this4.unactivate();
+			}, this.props.unactivateTimeout);
+		}
+
+		/**
+   * When a nested component activate itself, I need to activate myself
+   * @param 		{Event} 		e 		The custom event
+   */
+
+	}, {
+		key: '_onNestedComponentActivate',
+		value: function _onNestedComponentActivate(e) {
+
+			// make sure it's not myself that dispatch the event
+			// to prevent a maximum call stack error
+			if (e.target === this._getTargetElm()) return;
+
+			// process to activation
+			this._processActivate();
+		}
+
+		/**
+   * Handle history
+   */
+
+	}, {
+		key: '_handleHistory',
+		value: function _handleHistory() {
+			var _this5 = this;
+
+			if (this.props.history) {
+				window.addEventListener('hashchange', function (e) {
+					_this5._processHistoryChange();
 				});
 			}
+		}
 
-			// if we are on mobile and we listen for a touchmove, we cancel the event
-			if ('ontouchstart' in window) {
-				this.addEventListener('touchstart', function (e) {
-					_this2._isTouchMoved = false;
-				});
-				this.addEventListener('touchmove', function (e) {
-					_this2._isTouchMoved = true;
-				});
-			}
+		/**
+   * Check the url hash and activate if needed
+   */
 
-			// listen for the activate event on the body to check if we need to unactivate
-			// this
-			document.body.addEventListener(this._componentNameDash + ':activate', function (e) {
-				window.sugar._sActivateActiveStack[e.detail.group] = e.detail.id;
-				if (e.detail.group === _this2.props.group && e.detail.id !== _this2.props.id) {
-					_this2.unactivate();
-				}
-			});
+	}, {
+		key: '_checkHashAndActivateIfNeeded',
+		value: function _checkHashAndActivateIfNeeded() {
+			var _this6 = this;
 
-			// check on init if another element of the same group is already activated
-			// to unactivate this
-			if (window.sugar._sActivateActiveStack[this.props.group] && window.sugar._sActivateActiveStack[this.props.group] !== this.props.id) {
-				this.unactivate();
-			}
-
-			// listen for childs behin activated
-			if (this.props.listenChilds) {
-				[].forEach.call(this._targetElms, function (target) {
-					target.addEventListener(_this2._componentNameDash + ':activate', _this2._onTargetActivate.bind(_this2), true);
-				});
-			}
-
-			// check if has an unactivate trigger
-			var unactivate_trigger = this.props.unactivateTrigger;
-			if (unactivate_trigger) {
-				this.addEventListener(unactivate_trigger, this._onElmUnactivate.bind(this));
-				if (unactivate_trigger == 'mouseleave' || unactivate_trigger == 'mouseout') {
-					[].forEach.call(this._targetElms, function (target) {
-						target.addEventListener('mouseenter', _this2._onTargetMouseEnter.bind(_this2));
-						target.addEventListener(unactivate_trigger, _this2._onTargetUnactivate.bind(_this2));
-					});
-				}
-			}
-
-			// manage the active class
-			if (this.classList.contains(this.props.activeClass)) {
-				// activate the targets
-				// but to not dispatch any events etc...
-				[].forEach.call(this._targetElms, function (target) {
-					target.classList.add(_this2.props.activeTargetClass || _this2.props.activeClass);
-				});
-			}
 			setTimeout(function () {
 				// check with hash if need to activate the element
-				if (_this2.props.hash) {
+				if (_this6.props.hash) {
 					var hash = document.location.hash;
-					if (hash) {
-						if (hash.substr(1) === _this2.props.id) {
-							_this2._activate();
-						}
+					if (hash && hash === _this6._getTargetHash()) {
+						_this6._processActivate();
 					}
 				}
 			});
-			// restore state
-			this._restoreState();
+		}
+
+		/**
+   * Process history change
+   */
+
+	}, {
+		key: '_processHistoryChange',
+		value: function _processHistoryChange() {
+			var hash = document.location.hash;
+			if (hash && hash === this._getTargetHash()) {
+				this._processActivate();
+			}
+		}
+
+		/**
+   * When the trigger property has been fired on the element
+   * @param 		{Event} 		e 		The event
+   */
+
+	}, {
+		key: '_onTrigger',
+		value: function _onTrigger(e) {
+			// prevent default behavior
+			// mostly when the trigger is "click"
+			// cause we handle the hash change by hand
+			e.preventDefault();
+
+			// clear the unactivateTimeout
+			clearTimeout(this._unactivateTimeout);
+
+			// toggle
+			if (this.props.toggle && this.isActive()) {
+				this.unactivate();
+			} else {
+				// activate the element
+				this.activate();
+			}
 		}
 
 		/**
@@ -243,31 +305,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 	}, {
 		key: 'componentUnmount',
 		value: function componentUnmount() {
-			var _this3 = this;
-
 			_get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), 'componentUnmount', this).call(this);
-			// listen for trigger (click, mouseover, etc...)
-			this.removeEventListener(this.props.trigger, this._onTriggerElement);
-			// remove all the classes
-			this.classList.remove(this.props.activeClass);
-			[].forEach.call(this._targetElms, function (target) {
-				// remove the class from targets
-				target.classList.remove(_this3.props.activeTargetClass || _this3.props.activeClass);
-				// stop listening for activate event
-				target.removeEventListener(_this3._componentNameDash + ':activate', _this3._onTargetActivate, true);
-			});
-			[].forEach.call(this._targetElms, function (target) {
-				if (target._sActivateAttributesObservable) {
-					target._sActivateAttributesObservable.unsubscribe();
-				}
-			});
-			if (this.props.unactivateTrigger) {
-				this.removeEventListener(this.props.unactivateTrigger, this._onElmUnactivate);
-				[].forEach.call(this._targetElms, function (target) {
-					target.removeEventListener('mouseenter', _this3._onTargetMouseEnter);
-					target.removeEventListener(_this3.props.unactivateTrigger, _this3._onTargetUnactivate);
-				});
-			}
 		}
 
 		/**
@@ -279,15 +317,13 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 	}, {
 		key: 'componentWillReceiveProp',
 		value: function componentWillReceiveProp(name, newVal, oldVal) {
-			var _this4 = this;
-
 			switch (name) {
-				case 'href':
-					// wait next frame to be sure that we have the last html
-					this.mutate(function () {
-						_this4.update();
-					});
-					break;
+				// case 'href':
+				// 	// wait next frame to be sure that we have the last html
+				// 	this.mutate(() => {
+				// 		// this.update()
+				// 	});
+				// break;
 				case 'class':
 					newVal = typeof newVal === 'string' ? newVal : '';
 					oldVal = typeof oldVal === 'string' ? oldVal : '';
@@ -305,164 +341,65 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 		}
 
 		/**
-   * Render the component
-   * Here goes the code that reflect the this.props state on the actual html element
-   * @definition 		SWebComponent.render
-   * @protected
+   * Get the hash of the target element
+   * @return 		{String} 		The target element hash
    */
 
 	}, {
-		key: 'render',
-		value: function render() {
-			_get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), 'render', this).call(this);
-		}
-	}, {
-		key: '_componentWillMountBodyActivateListener',
-		value: function _componentWillMountBodyActivateListener(e) {
-			if (this._sActivateNestedItems.indexOf(e.target) === -1) {
-				this._sActivateNestedItems.push(e.target);
-			}
-		}
+		key: '_getTargetHash',
+		value: function _getTargetHash() {
+			if (this._targetHash) return this._targetHash; // cache strategy
 
-		/**
-   * On target activate
-   */
-
-	}, {
-		key: '_onTargetActivate',
-		value: function _onTargetActivate(e) {
-			// if ( this.props.id === e.detail.id) return;
-			if (!this.isComponentMounted()) return;
-			// e.stopPropagation();
-			// activate the trigger that handle this target
-			if (this.props.id !== e.detail.id && e.target._sActivateTrigger && e.target._sActivateTrigger !== this) {
-				this._activate();
-			}
-		}
-
-		/**
-   * On element trigger is launched
-   */
-
-	}, {
-		key: '_onTriggerElement',
-		value: function _onTriggerElement(e) {
-			var _this5 = this;
-
-			e.preventDefault();
-			if (this.props.disabled) return;
-
-			// if is touch moved, means that we need to stop here cause the user does not
-			// have make a tap, but instead has swiped, or something else...
-			if (this._isTouchMoved) return;
-
-			clearTimeout(this._activateTimeout);
-			this._activateTimeout = setTimeout(function () {
-
-				// if the target is the element itself
-				// we stop if the current target if not
-				// the element itselg to avoid issues
-				if (_this5._targetElms.length === 1 && _this5._targetElms[0] === _this5) {
-					if (e.target !== _this5) return;
+			if (this.props.for) {
+				if (this.props.for instanceof HTMLElement) {
+					this._targetHash = '#' + this.props.for.id;
+				} else if (typeof this.props.for === 'string') {
+					this._targetHash = ('#' + this.props.for).replace('##', '#');
 				}
+			} else {
+				this._targetHash = ('#' + this.props.href).replace('##', '#');
+			}
 
-				// clear unactivate timeout
-				clearTimeout(_this5._unactivateTimeout);
-				// if toggle
-				if (_this5.props.toggle && _this5.isActive()) {
-					// unactivate
-					_this5.unactivate();
-					// check if has a hash
-					if (_this5.props.history) {
-						window.history.back();
-					}
-				} else {
-					if (_this5.props.history) {
-						// simply activate again if the same id that hash
-						// this can happened when an element has history to false
-						if (document.location.hash && document.location.hash === _this5.props.id) {
-							_this5._activate();
-						} else {
-							// simply change the hash
-							// the event listener will take care of activate the
-							// good element
-							if (_this5.props.preventScroll) {
-								window.history.pushState(null, null, '' + (document.location.pathname || '') + (document.location.search || '') + '#' + _this5.props.id);
-								(0, _dispatchEvent2.default)(window, 'hashchange');
-							} else {
-								document.location.hash = '' + _this5.props.id;
-							}
-						}
-					} else {
-						// activate the element
-						_this5._activate();
-					}
-				}
-			}, this.props.activateTimeout);
+			return this._targetHash;
 		}
 
 		/**
-   * Element unactivate
+   * Get the target element
+   * @return 		{HTMLElement} 		The target element
    */
 
 	}, {
-		key: '_onElmUnactivate',
-		value: function _onElmUnactivate(e) {
-			var _this6 = this;
-
-			clearTimeout(this._unactivateTimeout);
-			clearTimeout(this._activateTimeout);
-			this._unactivateTimeout = setTimeout(function () {
-				_this6.unactivate();
-			}, this.props.unactivateTimeout);
+		key: '_getTargetElm',
+		value: function _getTargetElm() {
+			if (this._targetElm) return this._targetElm; // cache strategy
+			this._targetElm = document.querySelector(this._getTargetHash());
+			return this._targetElm;
 		}
 
 		/**
-   * Targer mouseenter callback
+   * Get all the component from the same group
+   * @return 		{Array<SActivateComponent>}		A node list of SActivateComponent elements that are in the same group as me
    */
 
 	}, {
-		key: '_onTargetMouseEnter',
-		value: function _onTargetMouseEnter(e) {
-			// clear the unactivate timeout
-			clearTimeout(this._unactivateTimeout);
+		key: '_getComponentOfTheSameGroup',
+		value: function _getComponentOfTheSameGroup() {
+			return [].concat(_toConsumableArray(document.querySelectorAll('[is="' + this.componentNameDash + '"][group="' + this.props.group + '"]')));
 		}
 
 		/**
-   * Target uncactivate callback
+   * Get all the component from the same group except me
+   * @return 		{Array<SActivateComponent>}		A node list of SActivateComponent elements that are in the same group as me
    */
 
 	}, {
-		key: '_onTargetUnactivate',
-		value: function _onTargetUnactivate(e) {
+		key: '_getComponentOfTheSameGroupExceptMe',
+		value: function _getComponentOfTheSameGroupExceptMe() {
 			var _this7 = this;
 
-			clearTimeout(this._unactivateTimeout);
-			this._unactivateTimeout = setTimeout(function () {
-				_this7.unactivate();
-			}, this.props.unactivateTimeout);
-		}
-
-		/**
-   * Get target
-   */
-
-	}, {
-		key: '_getTargetsSelector',
-		value: function _getTargetsSelector(elm) {
-			return elm._targetsSelector;
-		}
-
-		/**
-   * Get group
-   */
-
-	}, {
-		key: '_getGroup',
-		value: function _getGroup(elm) {
-			// if (this.props.group) return this.props.group;
-			return elm.props.group;
-			// return elm.getAttribute(this._componentNameDash+'-group') || elm.getAttribute('data-'+this._componentNameDash+'-group');
+			return this._getComponentOfTheSameGroup().filter(function (elm) {
+				return elm !== _this7;
+			});
 		}
 
 		/**
@@ -480,117 +417,58 @@ var SActivateComponent = function (_SAnchorWebComponent) {
    */
 
 	}, {
-		key: '_activate',
-		value: function _activate() {
-			var _this8 = this;
+		key: 'activate',
+		value: function activate() {
 
-			// prevent from activate multiple times
-			if (this.isActive()) return;
+			if (this.props.disabled) return;
 
-			// before activate callback
+			if (this.props.history) {
+				if (this.props.preventScroll) {
+					window.history.pushState(null, null, this._getTargetHash());
+					(0, _dispatchEvent2.default)(window, 'hashchange');
+				} else {
+					document.location.hash = this._getTargetHash();
+				}
+			} else {
+				// activate simply
+				this._processActivate();
+			}
+		}
+
+		/**
+   * Process to the actual activation
+   */
+
+	}, {
+		key: '_processActivate',
+		value: function _processActivate() {
+
+			// do nothing if disabled
+			if (this.props.disabled) return;
+
+			// callback
 			this.props.beforeActivate && this.props.beforeActivate(this);
 
 			// save the state
 			this._saveState(true);
 
-			// activate the element
+			// activate this component
 			this.classList.add(this.props.activeClass);
 
-			// activate all the targets
-			[].forEach.call(this._targetElms, function (target) {
-				_this8.activateTarget(target);
-				// dispatch an event to tell parents that this target is activated
-				(0, _dispatchEvent2.default)(target, _this8._componentNameDash + ':activate', {
-					id: _this8.props.id,
-					group: _this8.props.group
-				});
+			// activate the target element
+			var targetElm = this._getTargetElm();
+			targetElm.classList.add(this.props.activeTargetClass || this.props.activeClass);
+
+			// dispatch an activate event
+			(0, _dispatchEvent2.default)(targetElm, this.componentNameDash + ':activate');
+
+			// unactive the others members of the group
+			this._getComponentOfTheSameGroupExceptMe().forEach(function (sActivateComponentElm) {
+				sActivateComponentElm.unactivate();
 			});
 
 			// callback
 			this.props.afterActivate && this.props.afterActivate(this);
-		}
-
-		/**
-   * Activate a target element
-   * @param 		{HTMLElement} 		target 			The target to activatee
-   */
-
-	}, {
-		key: 'activateTarget',
-		value: function activateTarget(target) {
-			if (target !== this && target.activate && typeof target.activate === 'function') target.activate();else {
-				// remove the active class on target
-				target.classList.add(this.props.activeTargetClass || this.props.activeClass);
-			}
-		}
-
-		/**
-   * Unactivate a target element
-   * @param 		{HTMLElement} 		target 			The target to activatee
-   */
-
-	}, {
-		key: 'unactivateTarget',
-		value: function unactivateTarget(target) {
-			if (target !== this && target.unactivate && typeof target.unactivate === 'function') target.unactivate();else {
-				// remove the active class on target
-				target.classList.remove(this.props.activeTargetClass || this.props.activeClass);
-			}
-		}
-
-		/**
-   * Handle history
-   */
-
-	}, {
-		key: '_handleHistory',
-		value: function _handleHistory() {
-			var _this9 = this;
-
-			window.addEventListener('hashchange', function (e) {
-				_this9._processHistoryChange();
-			});
-			window.addEventListener('popstate', function (e) {
-				_this9._processHistoryChange();
-			});
-		}
-
-		/**
-   * Process history change
-   */
-
-	}, {
-		key: '_processHistoryChange',
-		value: function _processHistoryChange() {
-			// clearTimeout(this._processHistoryChangeTimeout);
-			// this._processHistoryChangeTimeout = setTimeout(() => {
-			var hash = document.location.hash;
-			if (hash) {
-				if (hash.substr(1) === this.props.id) {
-					this._activate();
-				}
-			}
-			// });
-		}
-
-		/**
-   * Activate the element
-   */
-
-	}, {
-		key: 'activate',
-		value: function activate() {
-			if (this.props.history) {
-				if (this.props.preventScroll) {
-					window.history.pushState(null, null, '#' + this.props.id);
-					(0, _dispatchEvent2.default)(window, 'hashchange');
-				} else {
-					document.location.hash = this.props.id;
-				}
-			} else {
-				// activate simply
-				this._activate();
-			}
 		}
 
 		/**
@@ -600,13 +478,18 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 	}, {
 		key: 'unactivate',
 		value: function unactivate() {
-			var _this10 = this;
+
+			// clear the activateTimeout
+			clearTimeout(this._activateTimeout);
+
+			// do nothing if disabled
+			if (this.props.disabled) return;
 
 			// prevent from unactivate multiple times
 			if (!this.isActive()) return;
 
 			// before unactivate
-			this.props.beforeUnactivate && this.props.onBeforeUnactivate(this);
+			this.props.beforeUnactivate && this.props.beforeUnactivate(this);
 
 			// save the state
 			this._saveState(false);
@@ -614,16 +497,13 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 			// unactive the item itself
 			this.classList.remove(this.props.activeClass);
 
-			// unactive targets
-			if (this._targetElms instanceof NodeList) {
-				[].forEach.call(this._targetElms, function (target) {
-					_this10.unactivateTarget(target);
-					// dispatch an event to tell parents that this target is unactivated
-					(0, _dispatchEvent2.default)(target, _this10._componentNameDash + ':unactivate', {
-						id: _this10.props.id,
-						group: _this10.props.group
-					});
-				});
+			// unactivate the target
+			var targetElm = this._getTargetElm();
+			targetElm.classList.remove(this.props.activeTargetClass || this.props.activeClass);
+
+			// check if the hash in the url is the one of this component to remove it
+			if (document.location.hash === this._getTargetHash()) {
+				window.history.pushState(null, null, '#');
 			}
 
 			// callback
@@ -638,15 +518,17 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 	}, {
 		key: '_saveState',
 		value: function _saveState(activated) {
-			if (!this.props.id) return;
+			var hash = this._getTargetHash();
 			// check the save state method
 			switch (this.props.saveState) {
 				case 'sessionStorage':
-					sessionStorage.setItem(this._componentNameDash + '-' + this.props.id, activated);
+				case sessionStorage:
+					sessionStorage.setItem(this._componentNameDash + '-' + hash, activated);
 					break;
 				case 'localStorage':
+				case localStorage:
 				case true:
-					localStorage.setItem(this._componentNameDash + '-' + this.props.id, activated);
+					localStorage.setItem(this._componentNameDash + '-' + hash, activated);
 					break;
 			}
 		}
@@ -658,115 +540,23 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 	}, {
 		key: '_restoreState',
 		value: function _restoreState() {
-			if (!this.props.id) return;
+			var hash = this._getTargetHash();
 			// check the save state method
 			switch (this.props.saveState) {
 				case 'sessionStorage':
-					if (eval(sessionStorage.getItem(this._componentNameDash + '-' + this.props.id))) {
+				case sessionStorage:
+					if (eval(sessionStorage.getItem(this._componentNameDash + '-' + hash))) {
 						this.activate();
 					}
 					break;
 				case 'localStorage':
+				case localStorage:
 				case true:
-					if (eval(localStorage.getItem(this._componentNameDash + '-' + this.props.id))) {
+					if (eval(localStorage.getItem(this._componentNameDash + '-' + hash))) {
 						this.activate();
 					}
 					break;
 			}
-		}
-
-		/**
-   * Check if all targets are disabled
-   */
-
-	}, {
-		key: '_checkDisabledTargets',
-		value: function _checkDisabledTargets() {
-			var allDisabled = true;
-			[].forEach.call(this._targetElms, function (target) {
-				if (!target.hasAttribute('disabled')) {
-					allDisabled = false;
-				}
-			});
-			if (allDisabled) {
-				this.setProp('disabled', true);
-			} else {
-				this.setProp('disabled', false);
-			}
-		}
-
-		/**
-   * Update targets, etc...
-   * @param 		{HTMLElement} 		[scope=document.body] 			The scope to update
-   */
-
-	}, {
-		key: 'update',
-		value: function update() {
-			var _this11 = this;
-
-			var scope = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : document.body;
-
-
-			// target
-			var targetsSelector = this.props.targets || this.props.href;
-
-			// remove # at start of targetsSelector
-			if (targetsSelector && targetsSelector.substr(0, 1) === '#') {
-				targetsSelector = targetsSelector.substr(1);
-			}
-
-			// if the targetsSelector is an id
-			// and the setting "id" is not set
-			// set the setting with the targetsSelector id
-			if (!this.props.id && typeof targetsSelector === 'string') {
-				this.setProp('id', targetsSelector);
-			} else if (!this.props.id) {
-				this.setProp('id', (0, _uniqid2.default)());
-			}
-
-			// if don't have any targetsSelector
-			// mean that it's the element itself
-			// so check if already an id
-			// otherwise, set a new one
-			if (!targetsSelector) {
-				var id = this._componentNameDash + '-' + (0, _uniqid2.default)();
-				if (!this.props.id) {
-					this.setProp('id', id);
-				}
-				targetsSelector = id;
-			}
-
-			// save in stack id an id exist
-			if (this.props.id) {
-				window.sugar._sActivateStack[this.props.id] = this;
-			}
-
-			// update the targetsSelectors array
-			if (targetsSelector) {
-				this._targetElms = scope.querySelectorAll('#' + targetsSelector + ',[' + this._componentNameDash + '-target="' + targetsSelector + '"]');
-				[].forEach.call(this._targetElms, function (t) {
-					// observe disable attribute on the target
-					if (!t._sActivateAttributesObservable) {
-						t._sActivateAttributesObservable = (0, _attributesObservable2.default)(t, {
-							attributeFilter: ['disabled']
-						}).subscribe(function (mutation) {
-							clearTimeout(_this11._targetElmsDisabledTimeout);
-							_this11._targetElmsDisabledTimeout = setTimeout(function () {
-								_this11._checkDisabledTargets();
-							});
-						});
-					}
-					t._sActivateTrigger = _this11;
-				});
-				// check disabled targets first time
-				this._checkDisabledTargets();
-			} else {
-				this._targetElms = [];
-			}
-
-			// save the selector
-			this._targetsSelector = targetsSelector;
 		}
 	}], [{
 		key: 'defaultCss',
@@ -791,21 +581,20 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 		get: function get() {
 			return {
 				/**
-     * Specify the target to activate. A target can be an HTMLElement with an id or an s-activate-target="{id}" attribute.
+     * Specify the target to activate. A target is an HTMLElement with an id attribute.
      * @prop
      * @type	{String}
      */
 				href: null,
 
-				id: null,
 				class: null,
 
 				/**
-     * Specify the targets of the activate link if want to override the href one
+     * Specify the target of the activate link if want to override the href one
      * @prop
      * @type 	{String}
      */
-				targets: null,
+				for: null,
 
 				/**
      * Specify the group in which this activate element lives. This is useful to create things like tabs, accordion, etc...
@@ -834,14 +623,21 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      * @prop
      * @type 	{Boolean}
      */
-				listenChilds: true,
+				listenChilds: false,
+
+				/**
+     * Set if we want to unactivate the component on an outside click
+     * @prop
+     * @type 	{Boolean}
+     */
+				unactivateOnOutsideClick: false,
 
 				/**
      * Set if want the component set his id in the URL
      * @prop
      * @type 	{Boolean}
      */
-				history: true,
+				history: false,
 
 				/**
      * Set if need to check the URL at start to activate the component if needed
@@ -886,20 +682,6 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 				unactivateTrigger: null,
 
 				/**
-     * Close when clicking outside
-     * @prop
-     * @type 	{Boolean}
-     */
-				closeOnOutsideClick: false,
-
-				/**
-     * Specify a timeout before actually activating the component
-     * @prop
-     * @type 	{Number}
-     */
-				activateTimeout: 0,
-
-				/**
      * Specify a timeout before actually unactivate the component
      * @prop
      * @type	{Number}
@@ -912,7 +694,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      * @prop
      * @type 	{Boolean}
      */
-				preventScroll: false,
+				preventScroll: true,
 
 				/**
      * Callback called just before the component is bein activated
@@ -942,19 +724,6 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 				afterUnactivate: null
 			};
-		}
-
-		/**
-   * Mount dependencies
-   * @protected
-   */
-
-	}, {
-		key: 'mountDependencies',
-		get: function get() {
-			return [function () {
-				return (0, _whenAttribute2.default)(this, 'href');
-			}];
 		}
 
 		/**
