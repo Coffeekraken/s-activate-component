@@ -1871,15 +1871,15 @@ coffeekraken-compile-server@^1.0.0:
     webpack "^2.0.0"
 
 coffeekraken-docblock-json-to-markdown@^1.0.0:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/coffeekraken-docblock-json-to-markdown/-/coffeekraken-docblock-json-to-markdown-1.0.3.tgz#a0daa6da2f1089aff45021673aa86818a8fd86f7"
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/coffeekraken-docblock-json-to-markdown/-/coffeekraken-docblock-json-to-markdown-1.0.4.tgz#07fe9ff365b073ca24d0eae05c1578a4052445a4"
   dependencies:
     lodash "^4.17.2"
     trim-lines "^1.1.0"
 
 coffeekraken-docblock-parser@^1.0.0:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/coffeekraken-docblock-parser/-/coffeekraken-docblock-parser-1.0.7.tgz#594ceab6c0bb590ed1f31fab2102b39a748639b4"
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/coffeekraken-docblock-parser/-/coffeekraken-docblock-parser-1.0.8.tgz#00d0620fdf28d83876df3c1a027b3f152f693cb2"
 
 coffeekraken-docblock-to-markdown@^1.0.0:
   version "1.0.0"
