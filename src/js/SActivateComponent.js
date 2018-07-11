@@ -463,14 +463,14 @@ export default class SActivateComponent extends SAnchorWebComponent {
   }
 
   /**
-     * Check if is active
-     */
+   * Check if is active
+   */
   isActive () {
     return this.classList.contains(this.props.activeClass)
   }
 
   /**
-   * Activate the element
+   * Activate the component
    */
   activate () {
     if (this.props.disabled) return
@@ -521,8 +521,8 @@ export default class SActivateComponent extends SAnchorWebComponent {
   }
 
   /**
-     * Unactive
-     */
+   * Unactive the component
+   */
   unactivate () {
     // clear the activateTimeout
     clearTimeout(this._activateTimeout)

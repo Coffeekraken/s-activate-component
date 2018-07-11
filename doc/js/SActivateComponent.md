@@ -10,16 +10,16 @@ Features:
 - And more...
 
 
-Author : Olivier Bossel <olivier.bossel@gmail.com>
+Author : Olivier Bossel [olivier.bossel@gmail.com](mailto:olivier.bossel@gmail.com)
 
 
 
 
 ## Attributes
 
-Here's the list of available attribute to set on the element.
+Here's the list of available attribute(s).
 
-### href:
+### href
 
 Specify the target to activate. A target is an HTMLElement with an id attribute.
 
@@ -28,7 +28,7 @@ Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Referen
 Default : **null**
 
 
-### for:
+### for
 
 Specify the target of the activate link if want to override the href one
 
@@ -37,7 +37,7 @@ Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Referen
 Default : **null**
 
 
-### group:
+### group
 
 Specify the group in which this activate element lives. This is useful to create things like tabs, accordion, etc...
 Basicaly, when an item of the same group is activated, the others will be unactivate automatically.
@@ -47,7 +47,7 @@ Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Referen
 Default : **null**
 
 
-### activeTargetClass:
+### activeTargetClass
 
 Specify the class that will be applied on the targets when this component is activated
 
@@ -56,7 +56,7 @@ Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Referen
 Default : **null**
 
 
-### activeClass:
+### activeClass
 
 Specify the class that will be applied on this component and on the targets when this component is activated
 
@@ -65,7 +65,7 @@ Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Referen
 Default : **active**
 
 
-### listenChilds:
+### listenChilds
 
 Listen for childs being activated to activate ourself
 
@@ -74,7 +74,7 @@ Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Refere
 Default : **false**
 
 
-### unactivateOnOutsideClick:
+### unactivateOnOutsideClick
 
 Set if we want to unactivate the component on an outside click
 
@@ -83,7 +83,7 @@ Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Refere
 Default : **false**
 
 
-### history:
+### history
 
 Set if want the component set his id in the URL
 
@@ -92,7 +92,7 @@ Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Refere
 Default : **false**
 
 
-### hash:
+### hash
 
 Set if need to check the URL at start to activate the component if needed
 
@@ -101,7 +101,7 @@ Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Refere
 Default : **true**
 
 
-### toggle:
+### toggle
 
 Set if want that the component unactivate itself when click on it when activated
 
@@ -110,7 +110,7 @@ Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Refere
 Default : **false**
 
 
-### trigger:
+### trigger
 
 Specify which event will activate the component
 
@@ -119,7 +119,7 @@ Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Referen
 Default : **click**
 
 
-### disabled:
+### disabled
 
 Specify if the activate component is disabled, in which case it will not activate any targets when clicked
 
@@ -128,7 +128,7 @@ Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Refere
 Default : **false**
 
 
-### saveState:
+### saveState
 
 Specify if and how the state of the component will be saved. It can be true/localStorage, or sessionStorage
 
@@ -137,7 +137,7 @@ Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Referen
 Default : **false**
 
 
-### unactivateTrigger:
+### unactivateTrigger
 
 Specify the event that will unactivate the component. By default, it's the same as the trigger property
 
@@ -146,7 +146,7 @@ Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Referen
 Default : **null**
 
 
-### unactivateTimeout:
+### unactivateTimeout
 
 Specify a timeout before actually unactivate the component
 
@@ -155,7 +155,7 @@ Type : **{ [Number](https://developer.mozilla.org/fr/docs/Web/JavaScript/Referen
 Default : **200**
 
 
-### preventScroll:
+### preventScroll
 
 Specify if need to prevent the scroll when clicking on the component. This is useful when the "history" property is set to true and need to prevent the scroll to happened.
 The url will be set using the window.history.pushState instead of the location.hash.
@@ -165,7 +165,7 @@ Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Refere
 Default : **true**
 
 
-### beforeActivate:
+### beforeActivate
 
 Callback called just before the component is bein activated
 
@@ -174,7 +174,7 @@ Type : **{ [Function](https://developer.mozilla.org/fr/docs/Web/JavaScript/Refer
 Default : **null**
 
 
-### afterActivate:
+### afterActivate
 
 Callback called just after the component is bein activated
 
@@ -183,7 +183,7 @@ Type : **{ [Function](https://developer.mozilla.org/fr/docs/Web/JavaScript/Refer
 Default : **null**
 
 
-### beforeUnactivate:
+### beforeUnactivate
 
 Callback called just before the component is bein unactivated
 
@@ -192,11 +192,13 @@ Type : **{ [Function](https://developer.mozilla.org/fr/docs/Web/JavaScript/Refer
 Default : **null**
 
 
-### afterUnactivate:
+### afterUnactivate
 
 Callback called just after the component is bein unactivated
 
 Type : **{ [Function](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Function) }**
+
+Default : **null**
 
 
 
@@ -211,9 +213,9 @@ Check if is active
 
 ### activate
 
-Activate the element
+Activate the component
 
 
 ### unactivate
 
-Unactive
+Unactive the component
