@@ -206,6 +206,16 @@ Default : **null**
 ## Methods
 
 
+### getTrigger
+
+Get the trigger
+
+
+### getUnactivateTrigger
+
+Get the unactivate trigger
+
+
 ### isActive
 
 Check if is active

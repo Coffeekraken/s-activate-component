@@ -8,9 +8,23 @@
 body {
 	padding: s-space(big);
 }
+
+// .btn {
+//   --s-activate-unactivate-trigger: mouseout
+// }
+// .btn {
+//   --s-activate-trigger: click;
+
+//   @include s-media(
+//     $max-width: 600px
+//   ) {
+//     --s-activate-trigger: mouseover;
+//   }
+// }
+
 .tab {
 	display: none;
 	padding: s-space(default);
-	background: white;
+  background: white;
 }
 .tab.active { display: block; }

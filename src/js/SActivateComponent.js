@@ -1,5 +1,6 @@
 import SAnchorWebComponent from 'coffeekraken-sugar/js/core/SAnchorWebComponent'
 import __dispatchEvent from 'coffeekraken-sugar/js/dom/dispatchEvent'
+import __debounce from 'coffeekraken-sugar/js/utils/functions/debounce'
 
 if (!window.sugar) window.sugar = {}
 if (!window.sugar._sActivateStack) window.sugar._sActivateStack = {}
@@ -229,21 +230,15 @@ export default class SActivateComponent extends SAnchorWebComponent {
     }
 
     // handle mobile trigger cause it can not be mouseover
-    if ('ontouchstart' in window) {
-      this.setProp('trigger', 'touchend')
-    }
+    // if ('ontouchstart' in window) {
+    //   this.setProp('trigger', 'touchend')
+    // }
 
-    // listen for the trigger
-    this.addEventListener(this.props.trigger, this._onTrigger.bind(this))
-
-    // listen for the unactivate trigger if needed
-    if (this.props.unactivateTrigger) {
-      this.addEventListener(this.props.unactivateTrigger, this._onUnactivateTrigger.bind(this))
-      if (this.props.unactivateTrigger === 'mouseleave' || this.props.unactivateTrigger === 'mouseout') {
-        targetElm.addEventListener('mouseenter', this._onTargetMouseEnter.bind(this))
-        targetElm.addEventListener(this.props.unactivateTrigger, this._onUnactivateTrigger.bind(this))
-      }
-    }
+    // handleListeners first time
+    this._removeAndAddListeners()
+    window.addEventListener('resize', __debounce(() => {
+      this._removeAndAddListeners()
+    }, 250))
 
     // listen for hash changes
     this._handleHistory()
@@ -277,6 +272,65 @@ export default class SActivateComponent extends SAnchorWebComponent {
         // close the element
         if (this.isActive()) this.unactivate()
       })
+    }
+  }
+
+  /**
+   * Get the trigger
+   */
+  getTrigger () {
+    if ('ontouchstart' in window) return 'touchend'
+    const cssTrigger = window.getComputedStyle(this).getPropertyValue('--s-activate-trigger')
+    if (cssTrigger) return cssTrigger.trim()
+    return this.props.trigger
+  }
+
+  /**
+   * Get the unactivate trigger
+   */
+  getUnactivateTrigger () {
+    if ('ontouchstart' in window) return 'touchend'
+    const cssTrigger = window.getComputedStyle(this).getPropertyValue('--s-activate-unactivate-trigger')
+    if (cssTrigger) return cssTrigger.trim()
+    return this.props.unactivateTrigger
+  }
+
+  /**
+   * Add and remove listeners
+   */
+  _removeAndAddListeners () {
+
+    if (!this._onTriggerFn) {
+      this._onTriggerFn = this._onTrigger.bind(this)
+    }
+
+    // listen for the trigger
+    if (this._oldTrigger) {
+      this.removeEventListener(this._oldTrigger, this._onTriggerFn)
+    }
+    this._oldTrigger = this.getTrigger()
+    this.addEventListener(this.getTrigger(), this._onTriggerFn)
+
+    // listen for the unactivate trigger if needed
+    if (!this._onUnactivateTriggerFn) {
+      this._onUnactivateTriggerFn = this._onUnactivateTrigger.bind(this)
+    }
+    if (!this._onTargetMouseEnterFn) {
+      this._onTargetMouseEnterFn = this._onTargetMouseEnter.bind(this)
+    }
+    const unactivateTrigger = this.getUnactivateTrigger()
+    if (this._oldUnactivateTrigger) {
+      this.removeEventListener(this._oldUnactivateTrigger, this._onUnactivateTriggerFn)
+    }
+    const targetElm = this._getTargetElm()
+    targetElm.removeEventListener('mouseenter', this._onTargetMouseEnterFn)
+    if (unactivateTrigger) {
+      this._oldUnactivateTrigger = unactivateTrigger
+      this.addEventListener(unactivateTrigger, this._onUnactivateTriggerFn)
+      if (unactivateTrigger === 'mouseleave' || unactivateTrigger === 'mouseout') {
+        targetElm.addEventListener('mouseenter', this._onTargetMouseEnterFn)
+        targetElm.addEventListener(this.props.unactivateTrigger, this._onUnactivateTriggerFn)
+      }
     }
   }
 
@@ -504,6 +558,11 @@ export default class SActivateComponent extends SAnchorWebComponent {
     // activate this component
     this.classList.add(this.props.activeClass)
 
+    // aria expanded
+    if (this.hasAttribute('aria-expanded')) {
+      this.setAttribute('aria-expanded', true)
+    }
+
     // activate the target element
     const targetElm = this._getTargetElm()
     targetElm.classList.add(this.props.activeTargetClass || this.props.activeClass)
@@ -541,6 +600,11 @@ export default class SActivateComponent extends SAnchorWebComponent {
 
     // unactive the item itself
     this.classList.remove(this.props.activeClass)
+
+     // aria expanded
+     if (this.hasAttribute('aria-expanded')) {
+      this.setAttribute('aria-expanded', false)
+    }
 
     // unactivate the target
     const targetElm = this._getTargetElm()

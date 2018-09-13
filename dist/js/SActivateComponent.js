@@ -16,6 +16,10 @@ var _dispatchEvent = require('coffeekraken-sugar/js/dom/dispatchEvent');
 
 var _dispatchEvent2 = _interopRequireDefault(_dispatchEvent);
 
+var _debounce = require('coffeekraken-sugar/js/utils/functions/debounce');
+
+var _debounce2 = _interopRequireDefault(_debounce);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -97,21 +101,15 @@ var SActivateComponent = function (_SAnchorWebComponent) {
       }
 
       // handle mobile trigger cause it can not be mouseover
-      if ('ontouchstart' in window) {
-        this.setProp('trigger', 'touchend');
-      }
+      // if ('ontouchstart' in window) {
+      //   this.setProp('trigger', 'touchend')
+      // }
 
-      // listen for the trigger
-      this.addEventListener(this.props.trigger, this._onTrigger.bind(this));
-
-      // listen for the unactivate trigger if needed
-      if (this.props.unactivateTrigger) {
-        this.addEventListener(this.props.unactivateTrigger, this._onUnactivateTrigger.bind(this));
-        if (this.props.unactivateTrigger === 'mouseleave' || this.props.unactivateTrigger === 'mouseout') {
-          targetElm.addEventListener('mouseenter', this._onTargetMouseEnter.bind(this));
-          targetElm.addEventListener(this.props.unactivateTrigger, this._onUnactivateTrigger.bind(this));
-        }
-      }
+      // handleListeners first time
+      this._removeAndAddListeners();
+      window.addEventListener('resize', (0, _debounce2.default)(function () {
+        _this2._removeAndAddListeners();
+      }, 250));
 
       // listen for hash changes
       this._handleHistory();
@@ -145,6 +143,74 @@ var SActivateComponent = function (_SAnchorWebComponent) {
           // close the element
           if (_this2.isActive()) _this2.unactivate();
         });
+      }
+    }
+
+    /**
+     * Get the trigger
+     */
+
+  }, {
+    key: 'getTrigger',
+    value: function getTrigger() {
+      if ('ontouchstart' in window) return 'touchend';
+      var cssTrigger = window.getComputedStyle(this).getPropertyValue('--s-activate-trigger');
+      if (cssTrigger) return cssTrigger.trim();
+      return this.props.trigger;
+    }
+
+    /**
+     * Get the unactivate trigger
+     */
+
+  }, {
+    key: 'getUnactivateTrigger',
+    value: function getUnactivateTrigger() {
+      if ('ontouchstart' in window) return 'touchend';
+      var cssTrigger = window.getComputedStyle(this).getPropertyValue('--s-activate-unactivate-trigger');
+      if (cssTrigger) return cssTrigger.trim();
+      return this.props.unactivateTrigger;
+    }
+
+    /**
+     * Add and remove listeners
+     */
+
+  }, {
+    key: '_removeAndAddListeners',
+    value: function _removeAndAddListeners() {
+
+      if (!this._onTriggerFn) {
+        this._onTriggerFn = this._onTrigger.bind(this);
+      }
+
+      // listen for the trigger
+      if (this._oldTrigger) {
+        this.removeEventListener(this._oldTrigger, this._onTriggerFn);
+      }
+      this._oldTrigger = this.getTrigger();
+      this.addEventListener(this.getTrigger(), this._onTriggerFn);
+
+      // listen for the unactivate trigger if needed
+      if (!this._onUnactivateTriggerFn) {
+        this._onUnactivateTriggerFn = this._onUnactivateTrigger.bind(this);
+      }
+      if (!this._onTargetMouseEnterFn) {
+        this._onTargetMouseEnterFn = this._onTargetMouseEnter.bind(this);
+      }
+      var unactivateTrigger = this.getUnactivateTrigger();
+      if (this._oldUnactivateTrigger) {
+        this.removeEventListener(this._oldUnactivateTrigger, this._onUnactivateTriggerFn);
+      }
+      var targetElm = this._getTargetElm();
+      targetElm.removeEventListener('mouseenter', this._onTargetMouseEnterFn);
+      if (unactivateTrigger) {
+        this._oldUnactivateTrigger = unactivateTrigger;
+        this.addEventListener(unactivateTrigger, this._onUnactivateTriggerFn);
+        if (unactivateTrigger === 'mouseleave' || unactivateTrigger === 'mouseout') {
+          targetElm.addEventListener('mouseenter', this._onTargetMouseEnterFn);
+          targetElm.addEventListener(this.props.unactivateTrigger, this._onUnactivateTriggerFn);
+        }
       }
     }
 
@@ -383,8 +449,8 @@ var SActivateComponent = function (_SAnchorWebComponent) {
     }
 
     /**
-       * Check if is active
-       */
+     * Check if is active
+     */
 
   }, {
     key: 'isActive',
@@ -393,7 +459,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
     }
 
     /**
-     * Activate the element
+     * Activate the component
      */
 
   }, {
@@ -433,6 +499,11 @@ var SActivateComponent = function (_SAnchorWebComponent) {
       // activate this component
       this.classList.add(this.props.activeClass);
 
+      // aria expanded
+      if (this.hasAttribute('aria-expanded')) {
+        this.setAttribute('aria-expanded', true);
+      }
+
       // activate the target element
       var targetElm = this._getTargetElm();
       targetElm.classList.add(this.props.activeTargetClass || this.props.activeClass);
@@ -450,8 +521,8 @@ var SActivateComponent = function (_SAnchorWebComponent) {
     }
 
     /**
-       * Unactive
-       */
+     * Unactive the component
+     */
 
   }, {
     key: 'unactivate',
@@ -473,6 +544,11 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 
       // unactive the item itself
       this.classList.remove(this.props.activeClass);
+
+      // aria expanded
+      if (this.hasAttribute('aria-expanded')) {
+        this.setAttribute('aria-expanded', false);
+      }
 
       // unactivate the target
       var targetElm = this._getTargetElm();
