@@ -215,7 +215,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
         this.addEventListener(unactivateTrigger, this._onUnactivateTriggerFn);
         if (unactivateTrigger === 'mouseleave' || unactivateTrigger === 'mouseout') {
           targetElm.addEventListener('mouseenter', this._onTargetMouseEnterFn);
-          targetElm.addEventListener(this.props.unactivateTrigger, this._onUnactivateTriggerFn);
+          targetElm.addEventListener(unactivateTrigger, this._onUnactivateTriggerFn);
         }
       }
     }
