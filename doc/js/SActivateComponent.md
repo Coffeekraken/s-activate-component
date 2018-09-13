@@ -206,6 +206,16 @@ Default : **null**
 ## Methods
 
 
+### getTrigger
+
+Get the trigger
+
+
+### getUnactivateTrigger
+
+Get the unactivate trigger
+
+
 ### isActive
 
 Check if is active
@@ -214,6 +224,11 @@ Check if is active
 ### activate
 
 Activate the component
+
+
+### toggle
+
+Toggle if possible. Otherwise, activate
 
 
 ### unactivate

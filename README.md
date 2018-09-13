@@ -79,6 +79,25 @@ Then simply use it inside your html like so:
 </div>
 ```
 
+## CSS Variables
+
+This webcomponent make use of some css variables. Here's the list:
+
+- `--s-activate-trigger` : Specify the trigger to use to activate the component. Do not use quotes.
+- `--s-activate-unactivate-trigger` : Specify the trigger to use to unactivate the component. Do not use quotes.
+
+Here's an example:
+
+```scss
+.my-cool-activate-button {
+  --s-activate-trigger: mouseover;
+
+  @media (max-width: 600px) {
+    --s-activate-trigger: click;
+  }
+}
+```
+
 <a id="readme-browsers-support"></a>
 ## Browsers support
 

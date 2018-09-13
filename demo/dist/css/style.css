@@ -5716,6 +5716,10 @@ body {
   padding: 2rem;
 }
 
+.btn:focus {
+  outline: 1px solid red;
+}
+
 .tab {
   display: none;
   padding: 1rem;
