@@ -229,16 +229,21 @@ export default class SActivateComponent extends SAnchorWebComponent {
       throw new Error(`No HTMLElement correspond to the ${this.componentNameDash} hash "${this._getTargetHash()}". The ${this.componentNameDash} component need a proper target to work with...`)
     }
 
-    // handle mobile trigger cause it can not be mouseover
-    // if ('ontouchstart' in window) {
-    //   this.setProp('trigger', 'touchend')
-    // }
-
     // handleListeners first time
     this._removeAndAddListeners()
     window.addEventListener('resize', __debounce(() => {
       this._removeAndAddListeners()
     }, 250))
+
+    // listen for the enter key
+    this.addEventListener('keydown', (e) => {
+      if (e.keyCode === 13) { // enter
+        // prevent default
+        e.preventDefault()
+        // toggle
+        this.toggle()
+      }
+    })
 
     // listen for hash changes
     this._handleHistory()
@@ -539,6 +544,18 @@ export default class SActivateComponent extends SAnchorWebComponent {
     } else {
       // activate simply
       this._processActivate()
+    }
+  }
+
+  /**
+   * Toggle if possible. Otherwise, activate
+   */
+  toggle () {
+    if (this.props.toggle && this.isActive()) {
+      this.unactivate()
+    } else {
+      // activate the element
+      this.activate()
     }
   }
 

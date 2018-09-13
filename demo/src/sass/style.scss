@@ -9,18 +9,22 @@ body {
 	padding: s-space(big);
 }
 
+.btn:focus {
+  outline: 1px solid red;
+}
+
 // .btn {
 //   --s-activate-unactivate-trigger: mouseout
 // }
-// .btn {
-//   --s-activate-trigger: click;
+.btn {
+  --s-activate-trigger: mouseover;
 
-//   @include s-media(
-//     $max-width: 600px
-//   ) {
-//     --s-activate-trigger: mouseover;
-//   }
-// }
+  @include s-media(
+    $max-width: 600px
+  ) {
+    --s-activate-trigger: mouseover;
+  }
+}
 
 .tab {
 	display: none;

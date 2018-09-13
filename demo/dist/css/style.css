@@ -5716,6 +5716,20 @@ body {
   padding: 2rem;
 }
 
+.btn:focus {
+  outline: 1px solid red;
+}
+
+.btn {
+  --s-activate-trigger: mouseover;
+}
+
+@media all and (max-width: 600px) {
+  .btn {
+    --s-activate-trigger: mouseover;
+  }
+}
+
 .tab {
   display: none;
   padding: 1rem;

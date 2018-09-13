@@ -100,16 +100,22 @@ var SActivateComponent = function (_SAnchorWebComponent) {
         throw new Error('No HTMLElement correspond to the ' + this.componentNameDash + ' hash "' + this._getTargetHash() + '". The ' + this.componentNameDash + ' component need a proper target to work with...');
       }
 
-      // handle mobile trigger cause it can not be mouseover
-      // if ('ontouchstart' in window) {
-      //   this.setProp('trigger', 'touchend')
-      // }
-
       // handleListeners first time
       this._removeAndAddListeners();
       window.addEventListener('resize', (0, _debounce2.default)(function () {
         _this2._removeAndAddListeners();
       }, 250));
+
+      // listen for the enter key
+      this.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+          // enter
+          // prevent default
+          e.preventDefault();
+          // toggle
+          _this2.toggle();
+        }
+      });
 
       // listen for hash changes
       this._handleHistory();
@@ -477,6 +483,21 @@ var SActivateComponent = function (_SAnchorWebComponent) {
       } else {
         // activate simply
         this._processActivate();
+      }
+    }
+
+    /**
+     * Toggle if possible. Otherwise, activate
+     */
+
+  }, {
+    key: 'toggle',
+    value: function toggle() {
+      if (this.props.toggle && this.isActive()) {
+        this.unactivate();
+      } else {
+        // activate the element
+        this.activate();
       }
     }
 

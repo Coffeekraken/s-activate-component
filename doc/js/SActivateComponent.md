@@ -226,6 +226,11 @@ Check if is active
 Activate the component
 
 
+### toggle
+
+Toggle if possible. Otherwise, activate
+
+
 ### unactivate
 
 Unactive the component
