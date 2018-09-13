@@ -16,15 +16,15 @@ body {
 // .btn {
 //   --s-activate-unactivate-trigger: mouseout
 // }
-.btn {
-  --s-activate-trigger: mouseover;
+// .btn {
+//   --s-activate-trigger: mouseover;
 
-  @include s-media(
-    $max-width: 600px
-  ) {
-    --s-activate-trigger: mouseover;
-  }
-}
+//   @include s-media(
+//     $max-width: 600px
+//   ) {
+//     --s-activate-trigger: mouseover;
+//   }
+// }
 
 .tab {
 	display: none;
