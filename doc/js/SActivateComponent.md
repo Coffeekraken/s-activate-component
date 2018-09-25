@@ -119,6 +119,15 @@ Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Referen
 Default : **click**
 
 
+### triggerTouch
+
+Specify which event will activate the component on touch devices
+
+Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/String) }**
+
+Default : **touchend**
+
+
 ### disabled
 
 Specify if the activate component is disabled, in which case it will not activate any targets when clicked
@@ -139,7 +148,16 @@ Default : **false**
 
 ### unactivateTrigger
 
-Specify the event that will unactivate the component. By default, it's the same as the trigger property
+Specify the event that will unactivate the component.
+
+Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/String) }**
+
+Default : **null**
+
+
+### unactivateTriggerTouch
+
+Specify the event that will unactivate the component on touch device.
 
 Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/String) }**
 
@@ -206,9 +224,19 @@ Default : **null**
 ## Methods
 
 
+### getTriggerTouch
+
+Get the touch trigger
+
+
 ### getTrigger
 
 Get the trigger
+
+
+### getUnactivateTriggerTouch
+
+Get the unactivate trigger touch
 
 
 ### getUnactivateTrigger

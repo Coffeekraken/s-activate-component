@@ -120,6 +120,13 @@ export default class SActivateComponent extends SAnchorWebComponent {
       trigger: 'click',
 
       /**
+       * Specify which event will activate the component on touch devices
+       * @prop
+       * @type    {String}
+       */
+      triggerTouch: 'touchend',
+
+      /**
        * Specify if the activate component is disabled, in which case it will not activate any targets when clicked
        * @prop
        * @type  {Boolean}
@@ -134,11 +141,18 @@ export default class SActivateComponent extends SAnchorWebComponent {
       saveState: false,
 
       /**
-       * Specify the event that will unactivate the component. By default, it's the same as the trigger property
+       * Specify the event that will unactivate the component.
        * @prop
        * @type  {String}
        */
       unactivateTrigger: null,
+
+      /**
+       * Specify the event that will unactivate the component on touch device.
+       * @prop
+       * @type   {String}
+       */
+      unactivateTriggerTouch: null,
 
       /**
        * Specify a timeout before actually unactivate the component
@@ -281,20 +295,36 @@ export default class SActivateComponent extends SAnchorWebComponent {
   }
 
   /**
+   * Get the touch trigger
+   */
+  getTriggerTouch () {
+    const cssTrigger = window.getComputedStyle(this).getPropertyValue('--s-activate-trigger-touch')
+    if (cssTrigger) return cssTrigger.trim()
+    return this.props.triggerTouch
+  }
+
+  /**
    * Get the trigger
    */
-  getTrigger () {
-    if ('ontouchstart' in window) return 'touchend'
+  getTrigger () {
     const cssTrigger = window.getComputedStyle(this).getPropertyValue('--s-activate-trigger')
     if (cssTrigger) return cssTrigger.trim()
     return this.props.trigger
   }
 
   /**
+   * Get the unactivate trigger touch
+   */
+  getUnactivateTriggerTouch () {
+    const cssTrigger = window.getComputedStyle(this).getPropertyValue('--s-activate-unactivate-trigger-touch')
+    if (cssTrigger) return cssTrigger.trim()
+    return this.props.unactivateTriggerTouch
+  }
+
+  /**
    * Get the unactivate trigger
    */
-  getUnactivateTrigger () {
-    if ('ontouchstart' in window) return 'touchend'
+  getUnactivateTrigger () {
     const cssTrigger = window.getComputedStyle(this).getPropertyValue('--s-activate-unactivate-trigger')
     if (cssTrigger) return cssTrigger.trim()
     return this.props.unactivateTrigger
@@ -304,7 +334,6 @@ export default class SActivateComponent extends SAnchorWebComponent {
    * Add and remove listeners
    */
   _removeAndAddListeners () {
-
     if (!this._onTriggerFn) {
       this._onTriggerFn = this._onTrigger.bind(this)
     }
@@ -314,7 +343,20 @@ export default class SActivateComponent extends SAnchorWebComponent {
       this.removeEventListener(this._oldTrigger, this._onTriggerFn)
     }
     this._oldTrigger = this.getTrigger()
-    this.addEventListener(this.getTrigger(), this._onTriggerFn)
+    if (this._oldTrigger) {
+      this.addEventListener(this._oldTrigger, this._onTriggerFn)
+    }
+
+    // listen for the trigger touch
+    if ('ontouchstart' in window) {
+      if (this._oldTriggerTouch) {
+        this.removeEventListener(this._oldTriggerTouch, this._onTriggerFn)
+      }
+      this._oldTriggerTouch = this.getTriggerTouch()
+      if (this._oldTriggerTouch) {
+        this.addEventListener(this._oldTriggerTouch, this._onTriggerFn)
+      }
+    }
 
     // listen for the unactivate trigger if needed
     if (!this._onUnactivateTriggerFn) {
@@ -335,6 +377,17 @@ export default class SActivateComponent extends SAnchorWebComponent {
       if (unactivateTrigger === 'mouseleave' || unactivateTrigger === 'mouseout') {
         targetElm.addEventListener('mouseenter', this._onTargetMouseEnterFn)
         targetElm.addEventListener(unactivateTrigger, this._onUnactivateTriggerFn)
+      }
+    }
+
+    // listen for the trigger touch
+    if ('ontouchstart' in window) {
+      if (this._oldUnactivateTriggerTouch) {
+        this.removeEventListener(this._oldUnactivateTriggerTouch, this._onUnactivateTriggerFn)
+      }
+      this._oldUnactivateTriggerTouch = this.getUnactivateTriggerTouch()
+      if (this._oldUnactivateTriggerTouch) {
+        this.addEventListener(this._oldUnactivateTriggerTouch, this._onUnactivateTriggerFn)
       }
     }
   }
@@ -432,13 +485,18 @@ export default class SActivateComponent extends SAnchorWebComponent {
     // clear the unactivateTimeout
     clearTimeout(this._unactivateTimeout)
 
-    // toggle
-    if (this.props.toggle && this.isActive()) {
-      this.unactivate()
-    } else {
-      // activate the element
-      this.activate()
-    }
+    // clear the activate timeout and set another one.
+    // this is made to avoid double execution on devices that have touch and mouse enabled (not tested)
+    clearTimeout(this._activateTimeout)
+    this._activateTimeout = setTimeout(() => {
+      // toggle
+      if (this.props.toggle && this.isActive()) {
+        this.unactivate()
+      } else {
+        // activate the element
+        this.activate()
+      }
+    })
   }
 
   /**
