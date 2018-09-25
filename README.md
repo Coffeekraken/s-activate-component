@@ -85,6 +85,8 @@ This webcomponent make use of some css variables. Here's the list:
 
 - `--s-activate-trigger` : Specify the trigger to use to activate the component. Do not use quotes.
 - `--s-activate-unactivate-trigger` : Specify the trigger to use to unactivate the component. Do not use quotes.
+- `--s-activate-trigger-touch` : Specify the trigger to use to activate the component on touch devices. Do not use quotes.
+- `--s-activate-unactivate-trigger-touch` : Specify the trigger to use to unactivate the component on touch devices. Do not use quotes.
 
 Here's an example:
 
