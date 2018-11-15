@@ -125,7 +125,7 @@ Specify which event will activate the component on touch devices
 
 Type : **{ [String](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/String) }**
 
-Default : **touchend**
+Default : **click**
 
 
 ### disabled
