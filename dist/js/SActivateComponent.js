@@ -790,7 +790,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
          * @prop
          * @type    {String}
          */
-        triggerTouch: 'touchend',
+        triggerTouch: 'click',
 
         /**
          * Specify if the activate component is disabled, in which case it will not activate any targets when clicked
