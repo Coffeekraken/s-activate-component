@@ -29,6 +29,8 @@
 
 Simple ```<a>``` webcomponent extension that give the ability to activate a target element by adding/removing a class on it. Useful to create some toggle, tabs, etc... behaviors.
 
+[![View demo](http://components.coffeekraken.io/assets/img/view-demo.png)](http://components.coffeekraken.io/app/s-activate-component)
+
 ## Features
 
 1. Add an "active" class on the target
