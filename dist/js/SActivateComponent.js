@@ -513,7 +513,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
   }, {
     key: "isActive",
     value: function isActive() {
-      return this.classList.contains(this.props.activeClass);
+      return this.classList.contains(this.props.activeClass) && this._isActive;
     }
 
     /**
@@ -523,7 +523,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
   }, {
     key: "activate",
     value: function activate() {
-      if (this.props.disabled) return;
+      if (this.props.disabled || this.isActive()) return;
 
       if (this.props.history) {
         if (this.props.preventScroll) {
@@ -561,7 +561,10 @@ var SActivateComponent = function (_SAnchorWebComponent) {
     key: "_processActivate",
     value: function _processActivate() {
       // do nothing if disabled
-      if (this.props.disabled) return;
+      if (this.props.disabled || this.isActive()) return;
+
+      // set the isActive flag
+      this._isActive = true;
 
       // callback
       this.props.beforeActivate && this.props.beforeActivate(this);
@@ -619,6 +622,9 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 
       // prevent from unactivate multiple times
       if (!this.isActive()) return;
+
+      // set the isActive flag
+      this._isActive = false;
 
       // before unactivate
       this.props.beforeUnactivate && this.props.beforeUnactivate(this);

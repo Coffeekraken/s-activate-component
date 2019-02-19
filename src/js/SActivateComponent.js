@@ -630,14 +630,14 @@ export default class SActivateComponent extends SAnchorWebComponent {
    * Check if is active
    */
   isActive() {
-    return this.classList.contains(this.props.activeClass);
+    return this.classList.contains(this.props.activeClass) && this._isActive;
   }
 
   /**
    * Activate the component
    */
   activate() {
-    if (this.props.disabled) return;
+    if (this.props.disabled || this.isActive()) return;
 
     if (this.props.history) {
       if (this.props.preventScroll) {
@@ -669,7 +669,10 @@ export default class SActivateComponent extends SAnchorWebComponent {
    */
   _processActivate() {
     // do nothing if disabled
-    if (this.props.disabled) return;
+    if (this.props.disabled || this.isActive()) return;
+
+    // set the isActive flag
+    this._isActive = true;
 
     // callback
     this.props.beforeActivate && this.props.beforeActivate(this);
@@ -728,6 +731,9 @@ export default class SActivateComponent extends SAnchorWebComponent {
 
     // prevent from unactivate multiple times
     if (!this.isActive()) return;
+
+    // set the isActive flag
+    this._isActive = false;
 
     // before unactivate
     this.props.beforeUnactivate && this.props.beforeUnactivate(this);
