@@ -1,10 +1,11 @@
-import SAnchorWebComponent from 'coffeekraken-sugar/js/core/SAnchorWebComponent'
-import __dispatchEvent from 'coffeekraken-sugar/js/dom/dispatchEvent'
-import __debounce from 'coffeekraken-sugar/js/utils/functions/debounce'
+import SAnchorWebComponent from "coffeekraken-sugar/js/core/SAnchorWebComponent";
+import __dispatchEvent from "coffeekraken-sugar/js/dom/dispatchEvent";
+import __debounce from "coffeekraken-sugar/js/utils/functions/debounce";
 
-if (!window.sugar) window.sugar = {}
-if (!window.sugar._sActivateStack) window.sugar._sActivateStack = {}
-if (!window.sugar._sActivateActiveStack) window.sugar._sActivateActiveStack = {}
+if (!window.sugar) window.sugar = {};
+if (!window.sugar._sActivateStack) window.sugar._sActivateStack = {};
+if (!window.sugar._sActivateActiveStack)
+  window.sugar._sActivateActiveStack = {};
 
 /**
  * @name    SActivateComponent
@@ -37,7 +38,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
    * @definition  SWebComponent.defaultProps
    * @protected
    */
-  static get defaultProps () {
+  static get defaultProps() {
     return {
       /**
        * Specify the target to activate. A target is an HTMLElement with an id attribute.
@@ -75,7 +76,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
        * @prop
        * @type  {String}
        */
-      activeClass: 'active',
+      activeClass: "active",
 
       /**
        * Listen for childs being activated to activate ourself
@@ -117,14 +118,14 @@ export default class SActivateComponent extends SAnchorWebComponent {
        * @prop
        * @type  {String}
        */
-      trigger: 'click',
+      trigger: "click",
 
       /**
        * Specify which event will activate the component on touch devices
        * @prop
        * @type    {String}
        */
-      triggerTouch: 'click',
+      triggerTouch: "click",
 
       /**
        * Specify if the activate component is disabled, in which case it will not activate any targets when clicked
@@ -196,7 +197,7 @@ export default class SActivateComponent extends SAnchorWebComponent {
        * @type  {Function}
        */
       afterUnactivate: null
-    }
+    };
   }
 
   /**
@@ -204,20 +205,20 @@ export default class SActivateComponent extends SAnchorWebComponent {
    * @definition  SWebComponent.physicalProps
    * @protected
    */
-  static get physicalProps () {
-    return ['group', 'disabled']
+  static get physicalProps() {
+    return ["group", "disabled"];
   }
 
   /**
    * Css
    * @protected
    */
-  static defaultCss (componentName, componentNameDash) {
+  static defaultCss(componentName, componentNameDash) {
     return `
       ${componentNameDash} {
         display : block;
       }
-    `
+    `;
   }
 
   /**
@@ -225,8 +226,8 @@ export default class SActivateComponent extends SAnchorWebComponent {
    * @definition  SWebComponent.componentWillMount
    * @protected
    */
-  componentWillMount () {
-    super.componentWillMount()
+  componentWillMount() {
+    super.componentWillMount();
   }
 
   /**
@@ -234,160 +235,196 @@ export default class SActivateComponent extends SAnchorWebComponent {
    * @definition  SWebComponent.componentMount
    * @protected
    */
-  componentMount () {
-    super.componentMount()
+  componentMount() {
+    super.componentMount();
 
     // make sure we have a target element to work with
-    const targetElm = this._getTargetElm()
+    const targetElm = this._getTargetElm();
     if (!targetElm) {
-      throw new Error(`No HTMLElement correspond to the ${this.componentNameDash} hash "${this._getTargetHash()}". The ${this.componentNameDash} component need a proper target to work with...`)
+      throw new Error(
+        `No HTMLElement correspond to the ${
+          this.componentNameDash
+        } hash "${this._getTargetHash()}". The ${
+          this.componentNameDash
+        } component need a proper target to work with...`
+      );
     }
 
     // handleListeners first time
-    this._removeAndAddListeners()
-    window.addEventListener('resize', __debounce(() => {
-      this._removeAndAddListeners()
-    }, 250))
+    this._removeAndAddListeners();
+    window.addEventListener(
+      "resize",
+      __debounce(() => {
+        this._removeAndAddListeners();
+      }, 250)
+    );
 
     // listen for the enter key
-    this.addEventListener('keydown', (e) => {
-      if (e.keyCode === 13) { // enter
+    this.addEventListener("keydown", e => {
+      if (e.keyCode === 13) {
+        // enter
         // prevent default
-        e.preventDefault()
+        e.preventDefault();
         // toggle
-        this.toggle()
+        this.toggle();
       }
-    })
+    });
 
     // listen for hash changes
-    this._handleHistory()
+    this._handleHistory();
 
     // check hash to activate the component if needed
-    this._checkHashAndActivateIfNeeded()
+    this._checkHashAndActivateIfNeeded();
 
     // check if need to activate myself due to the active class
     if (this.classList.contains(this.props.activeClass)) {
-      this._processActivate()
+      this._processActivate();
     }
 
     // restore state if needed
-    if (this.props.saveState) this._restoreState()
+    if (this.props.saveState) this._restoreState();
 
     // listen for the s-activate:activate event on the target element
     // to activate myself when a nested item if activated
     if (this.props.listenChilds) {
-      targetElm.addEventListener(`${this.componentNameDash}:activate`, this._onNestedComponentActivate.bind(this))
+      targetElm.addEventListener(
+        `${this.componentNameDash}:activate`,
+        this._onNestedComponentActivate.bind(this)
+      );
     }
 
     // if we want to unactivate the component on an outside click
     if (this.props.unactivateOnOutsideClick) {
-      this.addEventListener('click', (e) => {
-        e.stopPropagation()
-      })
-      targetElm.addEventListener('click', (e) => {
-        e.stopPropagation()
-      })
-      document.addEventListener('click', (e) => {
+      this.addEventListener("click", e => {
+        e.stopPropagation();
+      });
+      targetElm.addEventListener("click", e => {
+        e.stopPropagation();
+      });
+      document.addEventListener("click", e => {
         // close the element
-        if (this.isActive()) this.unactivate()
-      })
+        if (this.isActive()) this.unactivate();
+      });
     }
   }
 
   /**
    * Get the touch trigger
    */
-  getTriggerTouch () {
-    const cssTrigger = window.getComputedStyle(this).getPropertyValue('--s-activate-trigger-touch')
-    if (cssTrigger) return cssTrigger.trim()
-    return this.props.triggerTouch
+  getTriggerTouch() {
+    const cssTrigger = window
+      .getComputedStyle(this)
+      .getPropertyValue("--s-activate-trigger-touch");
+    if (cssTrigger) return cssTrigger.trim();
+    return this.props.triggerTouch;
   }
 
   /**
    * Get the trigger
    */
-  getTrigger () {
-    const cssTrigger = window.getComputedStyle(this).getPropertyValue('--s-activate-trigger')
-    if (cssTrigger) return cssTrigger.trim()
-    return this.props.trigger
+  getTrigger() {
+    const cssTrigger = window
+      .getComputedStyle(this)
+      .getPropertyValue("--s-activate-trigger");
+    if (cssTrigger) return cssTrigger.trim();
+    return this.props.trigger;
   }
 
   /**
    * Get the unactivate trigger touch
    */
-  getUnactivateTriggerTouch () {
-    const cssTrigger = window.getComputedStyle(this).getPropertyValue('--s-activate-unactivate-trigger-touch')
-    if (cssTrigger) return cssTrigger.trim()
-    return this.props.unactivateTriggerTouch
+  getUnactivateTriggerTouch() {
+    const cssTrigger = window
+      .getComputedStyle(this)
+      .getPropertyValue("--s-activate-unactivate-trigger-touch");
+    if (cssTrigger) return cssTrigger.trim();
+    return this.props.unactivateTriggerTouch;
   }
 
   /**
    * Get the unactivate trigger
    */
-  getUnactivateTrigger () {
-    const cssTrigger = window.getComputedStyle(this).getPropertyValue('--s-activate-unactivate-trigger')
-    if (cssTrigger) return cssTrigger.trim()
-    return this.props.unactivateTrigger
+  getUnactivateTrigger() {
+    const cssTrigger = window
+      .getComputedStyle(this)
+      .getPropertyValue("--s-activate-unactivate-trigger");
+    if (cssTrigger) return cssTrigger.trim();
+    return this.props.unactivateTrigger;
   }
 
   /**
    * Add and remove listeners
    */
-  _removeAndAddListeners () {
+  _removeAndAddListeners() {
     if (!this._onTriggerFn) {
-      this._onTriggerFn = this._onTrigger.bind(this)
+      this._onTriggerFn = this._onTrigger.bind(this);
     }
 
     // listen for the trigger
     if (this._oldTrigger) {
-      this.removeEventListener(this._oldTrigger, this._onTriggerFn)
+      this.removeEventListener(this._oldTrigger, this._onTriggerFn);
     }
-    this._oldTrigger = this.getTrigger()
+    this._oldTrigger = this.getTrigger();
     if (this._oldTrigger) {
-      this.addEventListener(this._oldTrigger, this._onTriggerFn)
+      this.addEventListener(this._oldTrigger, this._onTriggerFn);
     }
 
     // listen for the trigger touch
-    if ('ontouchstart' in window) {
+    if ("ontouchstart" in window) {
       if (this._oldTriggerTouch) {
-        this.removeEventListener(this._oldTriggerTouch, this._onTriggerFn)
+        this.removeEventListener(this._oldTriggerTouch, this._onTriggerFn);
       }
-      this._oldTriggerTouch = this.getTriggerTouch()
+      this._oldTriggerTouch = this.getTriggerTouch();
       if (this._oldTriggerTouch) {
-        this.addEventListener(this._oldTriggerTouch, this._onTriggerFn)
+        this.addEventListener(this._oldTriggerTouch, this._onTriggerFn);
       }
     }
 
     // listen for the unactivate trigger if needed
     if (!this._onUnactivateTriggerFn) {
-      this._onUnactivateTriggerFn = this._onUnactivateTrigger.bind(this)
+      this._onUnactivateTriggerFn = this._onUnactivateTrigger.bind(this);
     }
     if (!this._onTargetMouseEnterFn) {
-      this._onTargetMouseEnterFn = this._onTargetMouseEnter.bind(this)
+      this._onTargetMouseEnterFn = this._onTargetMouseEnter.bind(this);
     }
-    const unactivateTrigger = this.getUnactivateTrigger()
+    const unactivateTrigger = this.getUnactivateTrigger();
     if (this._oldUnactivateTrigger) {
-      this.removeEventListener(this._oldUnactivateTrigger, this._onUnactivateTriggerFn)
+      this.removeEventListener(
+        this._oldUnactivateTrigger,
+        this._onUnactivateTriggerFn
+      );
     }
-    const targetElm = this._getTargetElm()
-    targetElm.removeEventListener('mouseenter', this._onTargetMouseEnterFn)
+    const targetElm = this._getTargetElm();
+    targetElm.removeEventListener("mouseenter", this._onTargetMouseEnterFn);
     if (unactivateTrigger) {
-      this._oldUnactivateTrigger = unactivateTrigger
-      this.addEventListener(unactivateTrigger, this._onUnactivateTriggerFn)
-      if (unactivateTrigger === 'mouseleave' || unactivateTrigger === 'mouseout') {
-        targetElm.addEventListener('mouseenter', this._onTargetMouseEnterFn)
-        targetElm.addEventListener(unactivateTrigger, this._onUnactivateTriggerFn)
+      this._oldUnactivateTrigger = unactivateTrigger;
+      this.addEventListener(unactivateTrigger, this._onUnactivateTriggerFn);
+      if (
+        unactivateTrigger === "mouseleave" ||
+        unactivateTrigger === "mouseout"
+      ) {
+        targetElm.addEventListener("mouseenter", this._onTargetMouseEnterFn);
+        targetElm.addEventListener(
+          unactivateTrigger,
+          this._onUnactivateTriggerFn
+        );
       }
     }
 
     // listen for the trigger touch
-    if ('ontouchstart' in window) {
+    if ("ontouchstart" in window) {
       if (this._oldUnactivateTriggerTouch) {
-        this.removeEventListener(this._oldUnactivateTriggerTouch, this._onUnactivateTriggerFn)
+        this.removeEventListener(
+          this._oldUnactivateTriggerTouch,
+          this._onUnactivateTriggerFn
+        );
       }
-      this._oldUnactivateTriggerTouch = this.getUnactivateTriggerTouch()
+      this._oldUnactivateTriggerTouch = this.getUnactivateTriggerTouch();
       if (this._oldUnactivateTriggerTouch) {
-        this.addEventListener(this._oldUnactivateTriggerTouch, this._onUnactivateTriggerFn)
+        this.addEventListener(
+          this._oldUnactivateTriggerTouch,
+          this._onUnactivateTriggerFn
+        );
       }
     }
   }
@@ -396,79 +433,79 @@ export default class SActivateComponent extends SAnchorWebComponent {
    * When the unactivateTrigger is fired
    * @param   {Event}   e   The unactivateTrigger event
    */
-  _onUnactivateTrigger (e) {
-    clearTimeout(this._unactivateTimeout)
+  _onUnactivateTrigger(e) {
+    clearTimeout(this._unactivateTimeout);
     this._unactivateTimeout = setTimeout(() => {
-      this.unactivate()
-    }, this.props.unactivateTimeout)
+      this.unactivate();
+    }, this.props.unactivateTimeout);
   }
 
   /**
    * When the mouse enter the target element
    * @param   {MouseEvent}    e   The mouseenter event
    */
-  _onTargetMouseEnter (e) {
+  _onTargetMouseEnter(e) {
     // clear the unactivate timeout
-    clearTimeout(this._unactivateTimeout)
+    clearTimeout(this._unactivateTimeout);
   }
 
   /**
    * When the unactivateTrigger is fired from the target element
    * @param   {Event}   e   The unactivateTrigger event
    */
-  _onTargetUnactivateTrigger (e) {
-    clearTimeout(this._unactivateTimeout)
+  _onTargetUnactivateTrigger(e) {
+    clearTimeout(this._unactivateTimeout);
     this._unactivateTimeout = setTimeout(() => {
-      this.unactivate()
-    }, this.props.unactivateTimeout)
+      this.unactivate();
+    }, this.props.unactivateTimeout);
   }
 
   /**
    * When a nested component activate itself, I need to activate myself
    * @param   {Event}   e   The custom event
    */
-  _onNestedComponentActivate (e) {
+  _onNestedComponentActivate(e) {
     // make sure it's not myself that dispatch the event
     // to prevent a maximum call stack error
-    if (e.target === this._getTargetElm()) return
+    if (e.target === this._getTargetElm()) return;
 
     // process to activation
-    this._processActivate()
+    this._processActivate();
   }
 
   /**
    * Handle history
    */
-  _handleHistory () {
+  _handleHistory() {
     if (this.props.history) {
-      window.addEventListener('hashchange', (e) => {
-        this._processHistoryChange()
-      })
+      window.addEventListener("hashchange", e => {
+        this._processHistoryChange();
+      });
     }
   }
 
   /**
    * Check the url hash and activate if needed
    */
-  _checkHashAndActivateIfNeeded () {
+  _checkHashAndActivateIfNeeded() {
     setTimeout(() => {
       // check with hash if need to activate the element
       if (this.props.hash) {
-        let hash = document.location.hash
+        let hash = document.location.hash;
         if (hash && hash === this._getTargetHash()) {
-          this._processActivate()
+          this._processActivate();
         }
       }
-    })
+    });
   }
 
   /**
    * Process history change
    */
-  _processHistoryChange () {
-    let hash = document.location.hash
+  _processHistoryChange() {
+    let hash = document.location.hash;
     if (hash && hash === this._getTargetHash()) {
-      this._processActivate()
+      this._processActivate();
     }
   }
 
@@ -476,27 +513,27 @@ export default class SActivateComponent extends SAnchorWebComponent {
    * When the trigger property has been fired on the element
    * @param   {Event}   e   The event
    */
-  _onTrigger (e) {
+  _onTrigger(e) {
     // prevent default behavior
     // mostly when the trigger is "click"
     // cause we handle the hash change by hand
-    e.preventDefault()
+    e.preventDefault();
 
     // clear the unactivateTimeout
-    clearTimeout(this._unactivateTimeout)
+    clearTimeout(this._unactivateTimeout);
 
     // clear the activate timeout and set another one.
     // this is made to avoid double execution on devices that have touch and mouse enabled (not tested)
-    clearTimeout(this._activateTimeout)
+    clearTimeout(this._activateTimeout);
     this._activateTimeout = setTimeout(() => {
       // toggle
       if (this.props.toggle && this.isActive()) {
-        this.unactivate()
+        this.unactivate();
       } else {
         // activate the element
-        this.activate()
+        this.activate();
       }
-    })
+    });
   }
 
   /**
@@ -504,8 +541,8 @@ export default class SActivateComponent extends SAnchorWebComponent {
    * @definition    SWebComponent.componentUnmount
    * @protected
    */
-  componentUnmount () {
-    super.componentUnmount()
+  componentUnmount() {
+    super.componentUnmount();
   }
 
   /**
@@ -513,21 +550,27 @@ export default class SActivateComponent extends SAnchorWebComponent {
    * @definition    SWebComponent.componentWillReceiveProp
    * @protected
    */
-  componentWillReceiveProp (name, newVal, oldVal) {
+  componentWillReceiveProp(name, newVal, oldVal) {
     switch (name) {
-      case 'class':
-        newVal = (typeof newVal === 'string') ? newVal : ''
-        oldVal = (typeof oldVal === 'string') ? oldVal : ''
-        const newClasses = newVal.split(' ')
-        const oldClasses = oldVal.split(' ')
-        if (newClasses.indexOf(this.props.activeClass) !== -1 && oldClasses.indexOf(this.props.activeClass) === -1) {
+      case "class":
+        newVal = typeof newVal === "string" ? newVal : "";
+        oldVal = typeof oldVal === "string" ? oldVal : "";
+        const newClasses = newVal.split(" ");
+        const oldClasses = oldVal.split(" ");
+        if (
+          newClasses.indexOf(this.props.activeClass) !== -1 &&
+          oldClasses.indexOf(this.props.activeClass) === -1
+        ) {
           // activate the element
-          this.activate()
-        } else if (newClasses.indexOf(this.props.activeClass) === -1 && oldClasses.indexOf(this.props.activeClass) !== -1) {
+          this.activate();
+        } else if (
+          newClasses.indexOf(this.props.activeClass) === -1 &&
+          oldClasses.indexOf(this.props.activeClass) !== -1
+        ) {
           // unactivate the element
-          this.unactivate()
+          this.unactivate();
         }
-        break
+        break;
     }
   }
 
@@ -535,205 +578,239 @@ export default class SActivateComponent extends SAnchorWebComponent {
    * Get the hash of the target element
    * @return    {String}    The target element hash
    */
-  _getTargetHash () {
-    if (this._targetHash) return this._targetHash // cache strategy
+  _getTargetHash() {
+    if (this._targetHash) return this._targetHash; // cache strategy
 
     if (this.props.for) {
       if (this.props.for instanceof window.HTMLElement) {
-        this._targetHash = `#${this.props.for.id}`
-      } else if (typeof this.props.for === 'string') {
-        this._targetHash = `#${this.props.for}`.replace('##', '#')
+        this._targetHash = `#${this.props.for.id}`;
+      } else if (typeof this.props.for === "string") {
+        this._targetHash = `#${this.props.for}`.replace("##", "#");
       }
     } else {
-      this._targetHash = `#${this.props.href}`.replace('##', '#')
+      this._targetHash = `#${this.props.href}`.replace("##", "#");
     }
 
-    return this._targetHash
+    return this._targetHash;
   }
 
   /**
    * Get the target element
    * @return    {HTMLElement}   The target element
    */
-  _getTargetElm () {
-    if (this._targetElm) return this._targetElm // cache strategy
-    this._targetElm = document.querySelector(this._getTargetHash())
-    return this._targetElm
+  _getTargetElm() {
+    if (this._targetElm) return this._targetElm; // cache strategy
+    this._targetElm = document.querySelector(this._getTargetHash());
+    return this._targetElm;
   }
 
   /**
    * Get all the component from the same group
    * @return    {Array<SActivateComponent>}   A node list of SActivateComponent elements that are in the same group as me
    */
-  _getComponentOfTheSameGroup () {
-    return [...document.querySelectorAll(`[is="${this.componentNameDash}"][group="${this.props.group}"]`)]
+  _getComponentOfTheSameGroup() {
+    return [
+      ...document.querySelectorAll(
+        `[is="${this.componentNameDash}"][group="${this.props.group}"]`
+      )
+    ];
   }
 
   /**
    * Get all the component from the same group except me
    * @return    {Array<SActivateComponent>}   A node list of SActivateComponent elements that are in the same group as me
    */
-  _getComponentOfTheSameGroupExceptMe () {
-    return this._getComponentOfTheSameGroup().filter((elm) => {
-      return elm !== this
-    })
+  _getComponentOfTheSameGroupExceptMe() {
+    return this._getComponentOfTheSameGroup().filter(elm => {
+      return elm !== this;
+    });
   }
 
   /**
    * Check if is active
    */
-  isActive () {
-    return this.classList.contains(this.props.activeClass)
+  isActive() {
+    return this.classList.contains(this.props.activeClass);
   }
 
   /**
    * Activate the component
    */
-  activate () {
-    if (this.props.disabled) return
+  activate() {
+    if (this.props.disabled) return;
 
     if (this.props.history) {
       if (this.props.preventScroll) {
-        window.history.pushState(null, null, this._getTargetHash())
-        __dispatchEvent(window, 'hashchange')
+        window.history.pushState(null, null, this._getTargetHash());
+        __dispatchEvent(window, "hashchange");
       } else {
-        document.location.hash = this._getTargetHash()
+        document.location.hash = this._getTargetHash();
       }
     } else {
       // activate simply
-      this._processActivate()
+      this._processActivate();
     }
   }
 
   /**
    * Toggle if possible. Otherwise, activate
    */
-  toggle () {
+  toggle() {
     if (this.props.toggle && this.isActive()) {
-      this.unactivate()
+      this.unactivate();
     } else {
       // activate the element
-      this.activate()
+      this.activate();
     }
   }
 
   /**
    * Process to the actual activation
    */
-  _processActivate () {
+  _processActivate() {
     // do nothing if disabled
-    if (this.props.disabled) return
+    if (this.props.disabled) return;
 
     // callback
-    this.props.beforeActivate && this.props.beforeActivate(this)
+    this.props.beforeActivate && this.props.beforeActivate(this);
 
     // save the state
-    this._saveState(true)
+    this._saveState(true);
 
     // activate this component
-    this.classList.add(this.props.activeClass)
+    this.classList.add(this.props.activeClass);
 
     // aria expanded
-    if (this.hasAttribute('aria-expanded')) {
-      this.setAttribute('aria-expanded', true)
+    if (this.hasAttribute("aria-expanded")) {
+      this.setAttribute("aria-expanded", true);
     }
 
     // activate the target element
-    const targetElm = this._getTargetElm()
-    targetElm.classList.add(this.props.activeTargetClass || this.props.activeClass)
+    const targetElm = this._getTargetElm();
+    targetElm.classList.add(
+      this.props.activeTargetClass || this.props.activeClass
+    );
 
-    // dispatch an activate event
-    __dispatchEvent(targetElm, `${this.componentNameDash}:activate`)
+    /**
+     * Event dispatched when the element has been activated.
+     * @event
+     * @name    activate
+     */
+    __dispatchEvent(this, `activate`);
+
+    /**
+     * Event dispatched when a target element has been activated.
+     * @event
+     * @name    activate:target
+     */
+    __dispatchEvent(targetElm, `activate:target`);
 
     // unactive the others members of the group
-    this._getComponentOfTheSameGroupExceptMe().forEach((sActivateComponentElm) => {
-      sActivateComponentElm.unactivate()
-    })
+    this._getComponentOfTheSameGroupExceptMe().forEach(
+      sActivateComponentElm => {
+        sActivateComponentElm.unactivate();
+      }
+    );
 
     // callback
-    this.props.afterActivate && this.props.afterActivate(this)
+    this.props.afterActivate && this.props.afterActivate(this);
   }
 
   /**
    * Unactive the component
    */
-  unactivate () {
+  unactivate() {
     // clear the activateTimeout
-    clearTimeout(this._activateTimeout)
+    clearTimeout(this._activateTimeout);
 
     // do nothing if disabled
-    if (this.props.disabled) return
+    if (this.props.disabled) return;
 
     // prevent from unactivate multiple times
-    if (!this.isActive()) return
+    if (!this.isActive()) return;
 
     // before unactivate
-    this.props.beforeUnactivate && this.props.beforeUnactivate(this)
+    this.props.beforeUnactivate && this.props.beforeUnactivate(this);
 
     // save the state
-    this._saveState(false)
+    this._saveState(false);
 
     // unactive the item itself
-    this.classList.remove(this.props.activeClass)
+    this.classList.remove(this.props.activeClass);
 
-     // aria expanded
-     if (this.hasAttribute('aria-expanded')) {
-      this.setAttribute('aria-expanded', false)
+    // aria expanded
+    if (this.hasAttribute("aria-expanded")) {
+      this.setAttribute("aria-expanded", false);
     }
 
     // unactivate the target
-    const targetElm = this._getTargetElm()
-    targetElm.classList.remove(this.props.activeTargetClass || this.props.activeClass)
+    const targetElm = this._getTargetElm();
+    targetElm.classList.remove(
+      this.props.activeTargetClass || this.props.activeClass
+    );
 
     // check if the hash in the url is the one of this component to remove it
     if (document.location.hash === this._getTargetHash()) {
-      window.history.pushState(null, null, '#')
+      window.history.pushState(null, null, "#");
     }
 
     // callback
-    this.props.afterUnactivate && this.props.afterUnactivate(this)
+    this.props.afterUnactivate && this.props.afterUnactivate(this);
   }
 
   /**
-     * Save the state
-     * @param   {Boolean}   activated   The activate status
-     */
-  _saveState (activated) {
-    const hash = this._getTargetHash()
+   * Save the state
+   * @param   {Boolean}   activated   The activate status
+   */
+  _saveState(activated) {
+    const hash = this._getTargetHash();
     // check the save state method
     switch (this.props.saveState) {
-      case 'sessionStorage':
+      case "sessionStorage":
       case window.sessionStorage:
-        window.sessionStorage.setItem(`${this._componentNameDash}-${hash}`, activated)
-        break
-      case 'localStorage':
+        window.sessionStorage.setItem(
+          `${this._componentNameDash}-${hash}`,
+          activated
+        );
+        break;
+      case "localStorage":
       case window.localStorage:
       case true:
-        window.localStorage.setItem(`${this._componentNameDash}-${hash}`, activated)
-        break
+        window.localStorage.setItem(
+          `${this._componentNameDash}-${hash}`,
+          activated
+        );
+        break;
     }
   }
 
   /**
    * Restore the state
    */
-  _restoreState () {
-    const hash = this._getTargetHash()
+  _restoreState() {
+    const hash = this._getTargetHash();
     // check the save state method
     switch (this.props.saveState) {
-      case 'sessionStorage':
+      case "sessionStorage":
       case window.sessionStorage:
-        if (window.sessionStorage.getItem(`${this._componentNameDash}-${hash}`) === 'true') {
-          this.activate()
+        if (
+          window.sessionStorage.getItem(
+            `${this._componentNameDash}-${hash}`
+          ) === "true"
+        ) {
+          this.activate();
         }
-        break
-      case 'localStorage':
+        break;
+      case "localStorage":
       case window.localStorage:
       case true:
-        if (window.localStorage.getItem(`${this._componentNameDash}-${hash}`) === 'true') {
-          this.activate()
+        if (
+          window.localStorage.getItem(`${this._componentNameDash}-${hash}`) ===
+          "true"
+        ) {
+          this.activate();
         }
-        break
+        break;
     }
   }
 }
