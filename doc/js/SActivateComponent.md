@@ -262,3 +262,16 @@ Toggle if possible. Otherwise, activate
 ### unactivate
 
 Unactive the component
+
+
+## Events
+
+
+### activate
+
+Event dispatched when the element has been activated.
+
+
+### activate:target
+
+Event dispatched when a target element has been activated.

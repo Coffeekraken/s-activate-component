@@ -1,6 +1,6 @@
 {
   "name": "coffeekraken-s-activate-component",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Simple <a> webcomponent extension that give the ability to activate a target element by adding/removing a class on it. Useful to create some toggle, tabs, etc... behaviors.",
   "main": "dist/index.js",
   "homepage": "http://coffeekraken.io",
@@ -65,14 +65,14 @@
     ]
   },
   "dependencies": {
-    "coffeekraken-sugar": "^1.0.34",
-    "coffeekraken-s-button-component": "^1.0.1",
+    "coffeekraken-s-button-component": "^1.0.3",
     "coffeekraken-s-form-component": "^1.0.3",
     "coffeekraken-s-typography-component": "^1.0.2",
-    "coffeekraken-s-validator-component": "^1.0.7"
+    "coffeekraken-s-validator-component": "^1.0.8",
+    "coffeekraken-sugar": "^1.0.68"
   },
   "devDependencies": {
-    "@webcomponents/webcomponentsjs": "^2.2.1",
+    "@webcomponents/webcomponentsjs": "^2.2.7",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-jest": "^23.6.0",
@@ -82,7 +82,7 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-polyfill": "^6.23.0",
     "babel-preset-env": "^1.7.0",
-    "coffeekraken-code-playground": "^1.0.11",
+    "coffeekraken-code-playground": "^1.0.19",
     "coffeekraken-docblock-to-markdown": "^1.0.0",
     "coffeekraken-scripts-stack": "^1.0.3",
     "git-changelog": "^1.1.2",
@@ -90,7 +90,7 @@
     "jest": "^23.6.0",
     "node-sass": "^4.11.0",
     "standard": "^11.0.1",
-    "webpack": "^4.28.3",
-    "webpack-cli": "^3.1.2"
+    "webpack": "^4.29.5",
+    "webpack-cli": "^3.2.3"
   }
 }

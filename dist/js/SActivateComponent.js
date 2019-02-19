@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -8,15 +8,15 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _SAnchorWebComponent2 = require('coffeekraken-sugar/js/core/SAnchorWebComponent');
+var _SAnchorWebComponent2 = require("coffeekraken-sugar/js/core/SAnchorWebComponent");
 
 var _SAnchorWebComponent3 = _interopRequireDefault(_SAnchorWebComponent2);
 
-var _dispatchEvent = require('coffeekraken-sugar/js/dom/dispatchEvent');
+var _dispatchEvent = require("coffeekraken-sugar/js/dom/dispatchEvent");
 
 var _dispatchEvent2 = _interopRequireDefault(_dispatchEvent);
 
-var _debounce = require('coffeekraken-sugar/js/utils/functions/debounce');
+var _debounce = require("coffeekraken-sugar/js/utils/functions/debounce");
 
 var _debounce2 = _interopRequireDefault(_debounce);
 
@@ -69,7 +69,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
   }
 
   _createClass(SActivateComponent, [{
-    key: 'componentWillMount',
+    key: "componentWillMount",
 
 
     /**
@@ -78,7 +78,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      * @protected
      */
     value: function componentWillMount() {
-      _get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), 'componentWillMount', this).call(this);
+      _get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), "componentWillMount", this).call(this);
     }
 
     /**
@@ -88,26 +88,26 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: 'componentMount',
+    key: "componentMount",
     value: function componentMount() {
       var _this2 = this;
 
-      _get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), 'componentMount', this).call(this);
+      _get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), "componentMount", this).call(this);
 
       // make sure we have a target element to work with
       var targetElm = this._getTargetElm();
       if (!targetElm) {
-        throw new Error('No HTMLElement correspond to the ' + this.componentNameDash + ' hash "' + this._getTargetHash() + '". The ' + this.componentNameDash + ' component need a proper target to work with...');
+        throw new Error("No HTMLElement correspond to the " + this.componentNameDash + " hash \"" + this._getTargetHash() + "\". The " + this.componentNameDash + " component need a proper target to work with...");
       }
 
       // handleListeners first time
       this._removeAndAddListeners();
-      window.addEventListener('resize', (0, _debounce2.default)(function () {
+      window.addEventListener("resize", (0, _debounce2.default)(function () {
         _this2._removeAndAddListeners();
       }, 250));
 
       // listen for the enter key
-      this.addEventListener('keydown', function (e) {
+      this.addEventListener("keydown", function (e) {
         if (e.keyCode === 13) {
           // enter
           // prevent default
@@ -134,18 +134,18 @@ var SActivateComponent = function (_SAnchorWebComponent) {
       // listen for the s-activate:activate event on the target element
       // to activate myself when a nested item if activated
       if (this.props.listenChilds) {
-        targetElm.addEventListener(this.componentNameDash + ':activate', this._onNestedComponentActivate.bind(this));
+        targetElm.addEventListener(this.componentNameDash + ":activate", this._onNestedComponentActivate.bind(this));
       }
 
       // if we want to unactivate the component on an outside click
       if (this.props.unactivateOnOutsideClick) {
-        this.addEventListener('click', function (e) {
+        this.addEventListener("click", function (e) {
           e.stopPropagation();
         });
-        targetElm.addEventListener('click', function (e) {
+        targetElm.addEventListener("click", function (e) {
           e.stopPropagation();
         });
-        document.addEventListener('click', function (e) {
+        document.addEventListener("click", function (e) {
           // close the element
           if (_this2.isActive()) _this2.unactivate();
         });
@@ -157,9 +157,9 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: 'getTriggerTouch',
+    key: "getTriggerTouch",
     value: function getTriggerTouch() {
-      var cssTrigger = window.getComputedStyle(this).getPropertyValue('--s-activate-trigger-touch');
+      var cssTrigger = window.getComputedStyle(this).getPropertyValue("--s-activate-trigger-touch");
       if (cssTrigger) return cssTrigger.trim();
       return this.props.triggerTouch;
     }
@@ -169,9 +169,9 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: 'getTrigger',
+    key: "getTrigger",
     value: function getTrigger() {
-      var cssTrigger = window.getComputedStyle(this).getPropertyValue('--s-activate-trigger');
+      var cssTrigger = window.getComputedStyle(this).getPropertyValue("--s-activate-trigger");
       if (cssTrigger) return cssTrigger.trim();
       return this.props.trigger;
     }
@@ -181,9 +181,9 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: 'getUnactivateTriggerTouch',
+    key: "getUnactivateTriggerTouch",
     value: function getUnactivateTriggerTouch() {
-      var cssTrigger = window.getComputedStyle(this).getPropertyValue('--s-activate-unactivate-trigger-touch');
+      var cssTrigger = window.getComputedStyle(this).getPropertyValue("--s-activate-unactivate-trigger-touch");
       if (cssTrigger) return cssTrigger.trim();
       return this.props.unactivateTriggerTouch;
     }
@@ -193,9 +193,9 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: 'getUnactivateTrigger',
+    key: "getUnactivateTrigger",
     value: function getUnactivateTrigger() {
-      var cssTrigger = window.getComputedStyle(this).getPropertyValue('--s-activate-unactivate-trigger');
+      var cssTrigger = window.getComputedStyle(this).getPropertyValue("--s-activate-unactivate-trigger");
       if (cssTrigger) return cssTrigger.trim();
       return this.props.unactivateTrigger;
     }
@@ -205,7 +205,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: '_removeAndAddListeners',
+    key: "_removeAndAddListeners",
     value: function _removeAndAddListeners() {
       if (!this._onTriggerFn) {
         this._onTriggerFn = this._onTrigger.bind(this);
@@ -221,7 +221,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
       }
 
       // listen for the trigger touch
-      if ('ontouchstart' in window) {
+      if ("ontouchstart" in window) {
         if (this._oldTriggerTouch) {
           this.removeEventListener(this._oldTriggerTouch, this._onTriggerFn);
         }
@@ -243,18 +243,18 @@ var SActivateComponent = function (_SAnchorWebComponent) {
         this.removeEventListener(this._oldUnactivateTrigger, this._onUnactivateTriggerFn);
       }
       var targetElm = this._getTargetElm();
-      targetElm.removeEventListener('mouseenter', this._onTargetMouseEnterFn);
+      targetElm.removeEventListener("mouseenter", this._onTargetMouseEnterFn);
       if (unactivateTrigger) {
         this._oldUnactivateTrigger = unactivateTrigger;
         this.addEventListener(unactivateTrigger, this._onUnactivateTriggerFn);
-        if (unactivateTrigger === 'mouseleave' || unactivateTrigger === 'mouseout') {
-          targetElm.addEventListener('mouseenter', this._onTargetMouseEnterFn);
+        if (unactivateTrigger === "mouseleave" || unactivateTrigger === "mouseout") {
+          targetElm.addEventListener("mouseenter", this._onTargetMouseEnterFn);
           targetElm.addEventListener(unactivateTrigger, this._onUnactivateTriggerFn);
         }
       }
 
       // listen for the trigger touch
-      if ('ontouchstart' in window) {
+      if ("ontouchstart" in window) {
         if (this._oldUnactivateTriggerTouch) {
           this.removeEventListener(this._oldUnactivateTriggerTouch, this._onUnactivateTriggerFn);
         }
@@ -271,7 +271,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: '_onUnactivateTrigger',
+    key: "_onUnactivateTrigger",
     value: function _onUnactivateTrigger(e) {
       var _this3 = this;
 
@@ -287,7 +287,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: '_onTargetMouseEnter',
+    key: "_onTargetMouseEnter",
     value: function _onTargetMouseEnter(e) {
       // clear the unactivate timeout
       clearTimeout(this._unactivateTimeout);
@@ -299,7 +299,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: '_onTargetUnactivateTrigger',
+    key: "_onTargetUnactivateTrigger",
     value: function _onTargetUnactivateTrigger(e) {
       var _this4 = this;
 
@@ -315,7 +315,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: '_onNestedComponentActivate',
+    key: "_onNestedComponentActivate",
     value: function _onNestedComponentActivate(e) {
       // make sure it's not myself that dispatch the event
       // to prevent a maximum call stack error
@@ -330,12 +330,12 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: '_handleHistory',
+    key: "_handleHistory",
     value: function _handleHistory() {
       var _this5 = this;
 
       if (this.props.history) {
-        window.addEventListener('hashchange', function (e) {
+        window.addEventListener("hashchange", function (e) {
           _this5._processHistoryChange();
         });
       }
@@ -346,7 +346,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: '_checkHashAndActivateIfNeeded',
+    key: "_checkHashAndActivateIfNeeded",
     value: function _checkHashAndActivateIfNeeded() {
       var _this6 = this;
 
@@ -366,7 +366,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: '_processHistoryChange',
+    key: "_processHistoryChange",
     value: function _processHistoryChange() {
       var hash = document.location.hash;
       if (hash && hash === this._getTargetHash()) {
@@ -380,7 +380,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: '_onTrigger',
+    key: "_onTrigger",
     value: function _onTrigger(e) {
       var _this7 = this;
 
@@ -413,9 +413,9 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: 'componentUnmount',
+    key: "componentUnmount",
     value: function componentUnmount() {
-      _get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), 'componentUnmount', this).call(this);
+      _get(SActivateComponent.prototype.__proto__ || Object.getPrototypeOf(SActivateComponent.prototype), "componentUnmount", this).call(this);
     }
 
     /**
@@ -425,14 +425,14 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: 'componentWillReceiveProp',
+    key: "componentWillReceiveProp",
     value: function componentWillReceiveProp(name, newVal, oldVal) {
       switch (name) {
-        case 'class':
-          newVal = typeof newVal === 'string' ? newVal : '';
-          oldVal = typeof oldVal === 'string' ? oldVal : '';
-          var newClasses = newVal.split(' ');
-          var oldClasses = oldVal.split(' ');
+        case "class":
+          newVal = typeof newVal === "string" ? newVal : "";
+          oldVal = typeof oldVal === "string" ? oldVal : "";
+          var newClasses = newVal.split(" ");
+          var oldClasses = oldVal.split(" ");
           if (newClasses.indexOf(this.props.activeClass) !== -1 && oldClasses.indexOf(this.props.activeClass) === -1) {
             // activate the element
             this.activate();
@@ -450,18 +450,18 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: '_getTargetHash',
+    key: "_getTargetHash",
     value: function _getTargetHash() {
       if (this._targetHash) return this._targetHash; // cache strategy
 
       if (this.props.for) {
         if (this.props.for instanceof window.HTMLElement) {
-          this._targetHash = '#' + this.props.for.id;
-        } else if (typeof this.props.for === 'string') {
-          this._targetHash = ('#' + this.props.for).replace('##', '#');
+          this._targetHash = "#" + this.props.for.id;
+        } else if (typeof this.props.for === "string") {
+          this._targetHash = ("#" + this.props.for).replace("##", "#");
         }
       } else {
-        this._targetHash = ('#' + this.props.href).replace('##', '#');
+        this._targetHash = ("#" + this.props.href).replace("##", "#");
       }
 
       return this._targetHash;
@@ -473,7 +473,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: '_getTargetElm',
+    key: "_getTargetElm",
     value: function _getTargetElm() {
       if (this._targetElm) return this._targetElm; // cache strategy
       this._targetElm = document.querySelector(this._getTargetHash());
@@ -486,9 +486,9 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: '_getComponentOfTheSameGroup',
+    key: "_getComponentOfTheSameGroup",
     value: function _getComponentOfTheSameGroup() {
-      return [].concat(_toConsumableArray(document.querySelectorAll('[is="' + this.componentNameDash + '"][group="' + this.props.group + '"]')));
+      return [].concat(_toConsumableArray(document.querySelectorAll("[is=\"" + this.componentNameDash + "\"][group=\"" + this.props.group + "\"]")));
     }
 
     /**
@@ -497,7 +497,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: '_getComponentOfTheSameGroupExceptMe',
+    key: "_getComponentOfTheSameGroupExceptMe",
     value: function _getComponentOfTheSameGroupExceptMe() {
       var _this8 = this;
 
@@ -511,7 +511,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: 'isActive',
+    key: "isActive",
     value: function isActive() {
       return this.classList.contains(this.props.activeClass);
     }
@@ -521,14 +521,14 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: 'activate',
+    key: "activate",
     value: function activate() {
       if (this.props.disabled) return;
 
       if (this.props.history) {
         if (this.props.preventScroll) {
           window.history.pushState(null, null, this._getTargetHash());
-          (0, _dispatchEvent2.default)(window, 'hashchange');
+          (0, _dispatchEvent2.default)(window, "hashchange");
         } else {
           document.location.hash = this._getTargetHash();
         }
@@ -543,7 +543,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: 'toggle',
+    key: "toggle",
     value: function toggle() {
       if (this.props.toggle && this.isActive()) {
         this.unactivate();
@@ -558,7 +558,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: '_processActivate',
+    key: "_processActivate",
     value: function _processActivate() {
       // do nothing if disabled
       if (this.props.disabled) return;
@@ -573,16 +573,27 @@ var SActivateComponent = function (_SAnchorWebComponent) {
       this.classList.add(this.props.activeClass);
 
       // aria expanded
-      if (this.hasAttribute('aria-expanded')) {
-        this.setAttribute('aria-expanded', true);
+      if (this.hasAttribute("aria-expanded")) {
+        this.setAttribute("aria-expanded", true);
       }
 
       // activate the target element
       var targetElm = this._getTargetElm();
       targetElm.classList.add(this.props.activeTargetClass || this.props.activeClass);
 
-      // dispatch an activate event
-      (0, _dispatchEvent2.default)(targetElm, this.componentNameDash + ':activate');
+      /**
+       * Event dispatched when the element has been activated.
+       * @event
+       * @name    activate
+       */
+      (0, _dispatchEvent2.default)(this, "activate");
+
+      /**
+       * Event dispatched when a target element has been activated.
+       * @event
+       * @name    activate:target
+       */
+      (0, _dispatchEvent2.default)(targetElm, "activate:target");
 
       // unactive the others members of the group
       this._getComponentOfTheSameGroupExceptMe().forEach(function (sActivateComponentElm) {
@@ -598,7 +609,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: 'unactivate',
+    key: "unactivate",
     value: function unactivate() {
       // clear the activateTimeout
       clearTimeout(this._activateTimeout);
@@ -619,8 +630,8 @@ var SActivateComponent = function (_SAnchorWebComponent) {
       this.classList.remove(this.props.activeClass);
 
       // aria expanded
-      if (this.hasAttribute('aria-expanded')) {
-        this.setAttribute('aria-expanded', false);
+      if (this.hasAttribute("aria-expanded")) {
+        this.setAttribute("aria-expanded", false);
       }
 
       // unactivate the target
@@ -629,7 +640,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
 
       // check if the hash in the url is the one of this component to remove it
       if (document.location.hash === this._getTargetHash()) {
-        window.history.pushState(null, null, '#');
+        window.history.pushState(null, null, "#");
       }
 
       // callback
@@ -637,24 +648,24 @@ var SActivateComponent = function (_SAnchorWebComponent) {
     }
 
     /**
-       * Save the state
-       * @param   {Boolean}   activated   The activate status
-       */
+     * Save the state
+     * @param   {Boolean}   activated   The activate status
+     */
 
   }, {
-    key: '_saveState',
+    key: "_saveState",
     value: function _saveState(activated) {
       var hash = this._getTargetHash();
       // check the save state method
       switch (this.props.saveState) {
-        case 'sessionStorage':
+        case "sessionStorage":
         case window.sessionStorage:
-          window.sessionStorage.setItem(this._componentNameDash + '-' + hash, activated);
+          window.sessionStorage.setItem(this._componentNameDash + "-" + hash, activated);
           break;
-        case 'localStorage':
+        case "localStorage":
         case window.localStorage:
         case true:
-          window.localStorage.setItem(this._componentNameDash + '-' + hash, activated);
+          window.localStorage.setItem(this._componentNameDash + "-" + hash, activated);
           break;
       }
     }
@@ -664,28 +675,28 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: '_restoreState',
+    key: "_restoreState",
     value: function _restoreState() {
       var hash = this._getTargetHash();
       // check the save state method
       switch (this.props.saveState) {
-        case 'sessionStorage':
+        case "sessionStorage":
         case window.sessionStorage:
-          if (window.sessionStorage.getItem(this._componentNameDash + '-' + hash) === 'true') {
+          if (window.sessionStorage.getItem(this._componentNameDash + "-" + hash) === "true") {
             this.activate();
           }
           break;
-        case 'localStorage':
+        case "localStorage":
         case window.localStorage:
         case true:
-          if (window.localStorage.getItem(this._componentNameDash + '-' + hash) === 'true') {
+          if (window.localStorage.getItem(this._componentNameDash + "-" + hash) === "true") {
             this.activate();
           }
           break;
       }
     }
   }], [{
-    key: 'defaultCss',
+    key: "defaultCss",
 
 
     /**
@@ -693,10 +704,10 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      * @protected
      */
     value: function defaultCss(componentName, componentNameDash) {
-      return '\n      ' + componentNameDash + ' {\n        display : block;\n      }\n    ';
+      return "\n      " + componentNameDash + " {\n        display : block;\n      }\n    ";
     }
   }, {
-    key: 'defaultProps',
+    key: "defaultProps",
 
     /**
      * Default props
@@ -741,7 +752,7 @@ var SActivateComponent = function (_SAnchorWebComponent) {
          * @prop
          * @type  {String}
          */
-        activeClass: 'active',
+        activeClass: "active",
 
         /**
          * Listen for childs being activated to activate ourself
@@ -783,14 +794,14 @@ var SActivateComponent = function (_SAnchorWebComponent) {
          * @prop
          * @type  {String}
          */
-        trigger: 'click',
+        trigger: "click",
 
         /**
          * Specify which event will activate the component on touch devices
          * @prop
          * @type    {String}
          */
-        triggerTouch: 'click',
+        triggerTouch: "click",
 
         /**
          * Specify if the activate component is disabled, in which case it will not activate any targets when clicked
@@ -872,9 +883,9 @@ var SActivateComponent = function (_SAnchorWebComponent) {
      */
 
   }, {
-    key: 'physicalProps',
+    key: "physicalProps",
     get: function get() {
-      return ['group', 'disabled'];
+      return ["group", "disabled"];
     }
   }]);
 
