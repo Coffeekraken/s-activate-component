@@ -83,6 +83,15 @@ Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Refere
 Default : **false**
 
 
+### unactivateOnLinksClick
+
+Set if we want to unactivate the component on links click inside the target element
+
+Type : **{ [Boolean](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Boolean) }**
+
+Default : **false**
+
+
 ### history
 
 Set if want the component set his id in the URL

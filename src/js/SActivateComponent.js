@@ -93,6 +93,13 @@ export default class SActivateComponent extends SAnchorWebComponent {
       unactivateOnOutsideClick: false,
 
       /**
+       * Set if we want to unactivate the component on links click inside the target element
+       * @prop
+       * @type    {Boolean}
+       */
+      unactivateOnLinksClick: false,
+
+      /**
        * Set if want the component set his id in the URL
        * @prop
        * @type  {Boolean}
@@ -305,6 +312,17 @@ export default class SActivateComponent extends SAnchorWebComponent {
         // close the element
         if (this.isActive()) this.unactivate();
       });
+    }
+
+    // if we want to unactivate the component on links click
+    if (this.props.unactivateOnLinksClick) {
+      targetElm.addEventListener('click', e => {
+        // check if the event initiator is a link
+        if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'a') {
+          // unactivate the element
+          if (this.isActive()) this._unactivate();
+        }
+      })
     }
   }
 

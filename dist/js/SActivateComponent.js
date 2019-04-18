@@ -150,6 +150,17 @@ var SActivateComponent = function (_SAnchorWebComponent) {
           if (_this2.isActive()) _this2.unactivate();
         });
       }
+
+      // if we want to unactivate the component on links click
+      if (this.props.unactivateOnLinksClick) {
+        targetElm.addEventListener('click', function (e) {
+          // check if the event initiator is a link
+          if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'a') {
+            // unactivate the element
+            if (_this2.isActive()) _this2._unactivate();
+          }
+        });
+      }
     }
 
     /**
@@ -773,6 +784,13 @@ var SActivateComponent = function (_SAnchorWebComponent) {
          * @type  {Boolean}
          */
         unactivateOnOutsideClick: false,
+
+        /**
+         * Set if we want to unactivate the component on links click inside the target element
+         * @prop
+         * @type    {Boolean}
+         */
+        unactivateOnLinksClick: false,
 
         /**
          * Set if want the component set his id in the URL
