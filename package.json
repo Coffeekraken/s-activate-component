@@ -1,6 +1,6 @@
 {
   "name": "coffeekraken-s-activate-component",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "Simple <a> webcomponent extension that give the ability to activate a target element by adding/removing a class on it. Useful to create some toggle, tabs, etc... behaviors.",
   "main": "dist/index.js",
   "homepage": "http://coffeekraken.io",
